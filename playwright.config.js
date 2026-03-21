@@ -5,6 +5,10 @@ module.exports = defineConfig({
   testDir: './tests',
   timeout: 30000,
   retries: 0,
+  reporter: [
+    ['list'],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+  ],
   use: {
     // Extensions don't work in headless mode
     headless: false,

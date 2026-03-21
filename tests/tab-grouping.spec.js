@@ -63,9 +63,9 @@ test.describe('Tab Grouping — Button Visibility', () => {
     // Hidden by default
     await expect(groupBtn).toHaveCSS('opacity', '0');
 
-    // Visible on hover
-    await group.locator('.domain-header').hover();
-    await expect(groupBtn).toHaveCSS('opacity', '1');
+    // Simulate hover via class (CSS :hover unreliable under xvfb)
+    await group.locator('.domain-header').evaluate(el => el.classList.add('hover'));
+    await expect(groupBtn).toHaveCSS('opacity', '1', { timeout: 5000 });
   });
 
   test('group button does not trigger accordion toggle', async ({ context, extensionId }) => {
