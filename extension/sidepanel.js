@@ -158,7 +158,11 @@ function updateWindowFilter() {
   const windowIds = [...new Set(allTabs.map(t => t.windowId))];
   const currentValue = windowFilterEl.value;
 
-  windowFilterEl.innerHTML = `<option value="all">${t.allWindows}</option>`;
+  windowFilterEl.innerHTML = '';
+  const allOpt = document.createElement('option');
+  allOpt.value = 'all';
+  allOpt.textContent = t.allWindows;
+  windowFilterEl.appendChild(allOpt);
   windowIds.forEach((wid, i) => {
     const count = allTabs.filter(tab => tab.windowId === wid).length;
     const opt = document.createElement('option');
@@ -215,7 +219,12 @@ function render() {
   tabListEl.innerHTML = '';
 
   if (totalTabs === 0) {
-    tabListEl.innerHTML = `<div class="empty-state"><p>${t.noTabs}</p></div>`;
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    const p = document.createElement('p');
+    p.textContent = t.noTabs;
+    empty.appendChild(p);
+    tabListEl.appendChild(empty);
     return;
   }
 
@@ -261,14 +270,38 @@ function renderDomainGroup(group, windowId) {
 
   const header = document.createElement('div');
   header.className = 'domain-header';
-  header.innerHTML = `
-    <span class="domain-arrow">&#9654;</span>
-    ${group.favicon ? `<img class="domain-favicon" src="${group.favicon}" alt="">` : ''}
-    <span class="domain-name">${escapeHtml(group.domain)}</span>
-    <span class="domain-age">${getRelativeTime(group.tabs[0].lastAccessed)}</span>
-    <span class="domain-count">${group.tabs.length}</span>
-    <button class="domain-close">${t.closeAll}</button>
-  `;
+  const arrow = document.createElement('span');
+  arrow.className = 'domain-arrow';
+  arrow.innerHTML = '&#9654;';
+  header.appendChild(arrow);
+
+  if (group.favicon) {
+    const img = document.createElement('img');
+    img.className = 'domain-favicon';
+    img.src = group.favicon;
+    img.alt = '';
+    header.appendChild(img);
+  }
+
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'domain-name';
+  nameSpan.textContent = group.domain;
+  header.appendChild(nameSpan);
+
+  const ageSpan = document.createElement('span');
+  ageSpan.className = 'domain-age';
+  ageSpan.textContent = getRelativeTime(group.tabs[0].lastAccessed);
+  header.appendChild(ageSpan);
+
+  const countSpan = document.createElement('span');
+  countSpan.className = 'domain-count';
+  countSpan.textContent = group.tabs.length;
+  header.appendChild(countSpan);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'domain-close';
+  closeBtn.textContent = t.closeAll;
+  header.appendChild(closeBtn);
 
   header.addEventListener('click', (e) => {
     if (e.target.closest('.domain-close')) return;
@@ -299,12 +332,25 @@ function renderDomainGroup(group, windowId) {
 
     const isActive = tab.active;
 
-    tabEl.innerHTML = `
-      <div class="tab-active-dot ${isActive ? '' : 'inactive'}"></div>
-      <span class="tab-title ${isActive ? '' : 'inactive-tab'}">${escapeHtml(tab.title || 'Untitled')}</span>
-      <span class="tab-age">${getRelativeTime(tab.lastAccessed)}</span>
-      <button class="tab-close" title="${t.closeTab}">&times;</button>
-    `;
+    const dot = document.createElement('div');
+    dot.className = 'tab-active-dot' + (isActive ? '' : ' inactive');
+    tabEl.appendChild(dot);
+
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'tab-title' + (isActive ? '' : ' inactive-tab');
+    titleSpan.textContent = tab.title || 'Untitled';
+    tabEl.appendChild(titleSpan);
+
+    const tabAge = document.createElement('span');
+    tabAge.className = 'tab-age';
+    tabAge.textContent = getRelativeTime(tab.lastAccessed);
+    tabEl.appendChild(tabAge);
+
+    const tabCloseBtn = document.createElement('button');
+    tabCloseBtn.className = 'tab-close';
+    tabCloseBtn.title = t.closeTab;
+    tabCloseBtn.innerHTML = '&times;';
+    tabEl.appendChild(tabCloseBtn);
 
     tabEl.addEventListener('click', (e) => {
       if (e.target.closest('.tab-close')) return;

@@ -1,13 +1,15 @@
 (() => {
-  if (document.getElementById('tab-manager-banner')) return;
+  if (document.querySelector('.tm-banner')) return;
 
   const banner = document.createElement('button');
-  banner.id = 'tab-manager-banner';
+  banner.classList.add('tm-banner');
   banner.title = 'Tab Manager';
   banner.innerHTML = `<svg viewBox="0 0 20 20"><path d="M3 4h14v2H3V4zm1 4h12v2H4V8zm1 4h10v2H5v-2z"/></svg>`;
 
   function applyState(side, visible) {
-    banner.className = side || 'right';
+    const validSides = ['left', 'right'];
+    const validSide = validSides.includes(side) ? side : 'right';
+    banner.className = 'tm-banner ' + validSide;
     banner.style.display = visible === false ? 'none' : '';
   }
 

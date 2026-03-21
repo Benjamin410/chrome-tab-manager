@@ -1,4 +1,4 @@
-#tab-manager-banner {
+.tm-banner {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
@@ -19,24 +19,24 @@
   right: auto;
 }
 
-#tab-manager-banner:hover {
+.tm-banner:hover {
   width: 34px;
   opacity: 1;
 }
 
-#tab-manager-banner.right {
+.tm-banner.right {
   right: 0;
   left: auto;
   border-radius: 8px 0 0 8px;
 }
 
-#tab-manager-banner.left {
+.tm-banner.left {
   left: 0;
   right: auto;
   border-radius: 0 8px 8px 0;
 }
 
-#tab-manager-banner svg {
+.tm-banner svg {
   width: 16px;
   height: 16px;
   fill: white;
@@ -44,7 +44,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  #tab-manager-banner {
+  .tm-banner {
     background: linear-gradient(180deg, #8ab4f8 0%, #669df6 100%);
   }
 }
