@@ -16,6 +16,17 @@
   --danger: #d93025;
   --danger-hover: #b3261e;
   --shadow: rgba(0, 0, 0, 0.08);
+
+  /* Chrome tab group colors */
+  --chrome-group-grey: #5f6368;
+  --chrome-group-blue: #1a73e8;
+  --chrome-group-red: #d93025;
+  --chrome-group-yellow: #f9ab00;
+  --chrome-group-green: #188038;
+  --chrome-group-pink: #d01884;
+  --chrome-group-purple: #9334e6;
+  --chrome-group-cyan: #007b83;
+  --chrome-group-orange: #e8710a;
 }
 
 /* Chrome Native Dark Theme */
@@ -282,6 +293,14 @@ body {
   border-bottom: 1px solid var(--border-light);
 }
 
+.domain-group.has-group-color {
+  border-left: 3px solid var(--group-color);
+}
+
+.domain-group.has-group-color .domain-name {
+  color: var(--group-color);
+}
+
 .domain-header {
   display: flex;
   align-items: center;
@@ -362,6 +381,34 @@ body {
 
 .domain-close:hover {
   background: rgba(217, 48, 37, 0.1);
+}
+
+/* Group/ungroup button on domain header */
+.domain-group-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.domain-header:hover .domain-group-btn {
+  opacity: 1;
+}
+
+.domain-group-btn:hover {
+  background: var(--accent-bg);
+}
+
+.domain-group-btn.is-grouped {
+  color: var(--text-secondary);
 }
 
 /* Tab list inside domain */

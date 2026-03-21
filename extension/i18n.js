@@ -23,6 +23,8 @@ const translations = {
     close: 'Close',
     now: 'now',
     edgeBanner: 'Quick-open banner',
+    groupTabs: 'Group tabs',
+    ungroupTabs: 'Ungroup tabs',
   },
   de: {
     searchPlaceholder: 'Tabs suchen...',
@@ -48,6 +50,8 @@ const translations = {
     close: 'Schließen',
     now: 'jetzt',
     edgeBanner: 'Schnellöffner-Banner',
+    groupTabs: 'Tabs gruppieren',
+    ungroupTabs: 'Gruppierung aufheben',
   },
   fr: {
     searchPlaceholder: 'Rechercher des onglets...',
@@ -73,6 +77,8 @@ const translations = {
     close: 'Fermer',
     now: 'maintenant',
     edgeBanner: 'Bandeau latéral',
+    groupTabs: 'Grouper les onglets',
+    ungroupTabs: 'Dégrouper les onglets',
   },
   es: {
     searchPlaceholder: 'Buscar pestañas...',
@@ -98,6 +104,8 @@ const translations = {
     close: 'Cerrar',
     now: 'ahora',
     edgeBanner: 'Banner lateral',
+    groupTabs: 'Agrupar pestañas',
+    ungroupTabs: 'Desagrupar pestañas',
   },
 };
 

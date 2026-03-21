@@ -10,6 +10,7 @@ A Chrome Side Panel extension that groups all your open tabs by domain, sorted b
 - **Window grouping toggle** — Optionally group tabs by window, or mix them all together
 - **Window filter** — Filter to show only tabs from a specific window
 - **Search** — Filter tabs by title or URL in real-time
+- **Chrome tab grouping** — Group all tabs of a domain into a native Chrome tab group with one click, with automatic color coding and domain name labels; works across multiple windows simultaneously
 - **Close actions** — Close individual tabs, all tabs of a domain, or all tabs older than 7 days
 - **Keyboard shortcut** — `Cmd+M` (Mac) / `Ctrl+M` (Windows/Linux) to toggle the side panel
 - **Quick-open banner** — Clickable banner on the page edge to open/close the panel, configurable (left/right/off)
@@ -47,6 +48,8 @@ To include incognito tabs in the list:
 | Configure banner position | Left/Right/Off buttons in the panel |
 | Switch to a tab | Click on it in the list |
 | Close a tab | Hover and click the **x** button |
+| Group tabs by domain | Hover the domain header and click the **folder icon** |
+| Ungroup tabs | Hover a grouped domain and click the **folder-minus icon** |
 | Close all tabs of a domain | Hover the domain header and click **Close all** |
 | Close old tabs | Click **Close old (>7d)** in the header |
 | Search | Type in the search field |
@@ -87,6 +90,7 @@ To include incognito tabs in the list:
 │   ├── theme.spec.js             # Theme switching
 │   ├── banner.spec.js            # Edge banner tests
 │   ├── window-management.spec.js # Window filter + grouping
+│   ├── tab-grouping.spec.js     # Chrome tab group feature
 │   └── i18n.spec.js              # Language switching
 ├── playwright.config.js          # Playwright configuration
 ├── package.json

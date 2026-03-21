@@ -3,6 +3,19 @@ let allTabs = [];
 let expandedDomains = new Set();
 let groupByWindow = false;
 let filterWindowId = null;
+let groupOperationInProgress = false;
+
+// Tab group colors
+const TAB_GROUP_COLORS = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
+
+function pickGroupColor(domain) {
+  let hash = 0;
+  for (let i = 0; i < domain.length; i++) {
+    hash = ((hash << 5) - hash) + domain.charCodeAt(i);
+    hash |= 0;
+  }
+  return TAB_GROUP_COLORS[Math.abs(hash) % TAB_GROUP_COLORS.length];
+}
 
 // Elements
 const tabListEl = document.getElementById('tab-list');
@@ -120,6 +133,19 @@ confirmOk.addEventListener('click', () => {
 // Data loading
 async function loadTabs() {
   allTabs = await chrome.tabs.query({});
+  // Enrich tabs with their group color (query all groups at once for cross-window reliability)
+  const groupColorMap = new Map();
+  try {
+    const allGroups = await chrome.tabGroups.query({});
+    for (const g of allGroups) {
+      groupColorMap.set(g.id, g.color);
+    }
+  } catch { /* tabGroups API unavailable */ }
+  for (const tab of allTabs) {
+    if (tab.groupId !== undefined && tab.groupId !== -1) {
+      tab.groupColor = groupColorMap.get(tab.groupId) ?? null;
+    }
+  }
   updateWindowFilter();
   render();
 }
@@ -298,13 +324,31 @@ function renderDomainGroup(group, windowId) {
   countSpan.textContent = group.tabs.length;
   header.appendChild(countSpan);
 
+  const allGrouped = group.tabs.every(tab => tab.groupId !== undefined && tab.groupId !== -1);
+  const groupColor = allGrouped
+    ? (group.tabs.find(tab => tab.groupColor)?.groupColor ?? null)
+    : null;
+
+  if (groupColor) {
+    domainEl.classList.add('has-group-color');
+    domainEl.style.setProperty('--group-color', `var(--chrome-group-${groupColor})`);
+  }
+
+  const groupBtn = document.createElement('button');
+  groupBtn.className = 'domain-group-btn' + (allGrouped ? ' is-grouped' : '');
+  groupBtn.title = allGrouped ? t.ungroupTabs : t.groupTabs;
+  groupBtn.innerHTML = allGrouped
+    ? '<svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/><path d="M7 11h6" stroke="white" stroke-width="1.5" fill="none"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>';
+  header.appendChild(groupBtn);
+
   const closeBtn = document.createElement('button');
   closeBtn.className = 'domain-close';
   closeBtn.textContent = t.closeAll;
   header.appendChild(closeBtn);
 
   header.addEventListener('click', (e) => {
-    if (e.target.closest('.domain-close')) return;
+    if (e.target.closest('.domain-close') || e.target.closest('.domain-group-btn')) return;
     toggleDomain(domainKey, domainEl);
   });
 
@@ -317,6 +361,36 @@ function renderDomainGroup(group, windowId) {
     if (confirmed) {
       await chrome.tabs.remove(tabIds);
     }
+  });
+
+  header.querySelector('.domain-group-btn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    groupOperationInProgress = true;
+    try {
+      const tabsByWindow = new Map();
+      for (const tab of group.tabs) {
+        if (!tabsByWindow.has(tab.windowId)) tabsByWindow.set(tab.windowId, []);
+        tabsByWindow.get(tab.windowId).push(tab.id);
+      }
+      const windowEntries = [...tabsByWindow.entries()];
+      if (allGrouped) {
+        await Promise.all(windowEntries.map(([, tabIds]) => chrome.tabs.ungroup(tabIds)));
+      } else {
+        await Promise.all(windowEntries.map(async ([windowId, tabIds]) => {
+          const groupId = await chrome.tabs.group({
+            createProperties: { windowId },
+            tabIds,
+          });
+          await chrome.tabGroups.update(groupId, {
+            title: group.domain,
+            color: pickGroupColor(group.domain),
+          });
+        }));
+      }
+    } finally {
+      groupOperationInProgress = false;
+    }
+    await loadTabs();
   });
 
   domainEl.appendChild(header);
@@ -474,7 +548,7 @@ panelPort.onMessage.addListener((msg) => {
 
 // Listen for tab changes from background
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === 'tabs-changed') {
+  if (msg.type === 'tabs-changed' && !groupOperationInProgress) {
     loadTabs();
   }
 });
