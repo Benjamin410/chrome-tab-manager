@@ -22,9 +22,9 @@ test.describe('Close Actions', () => {
     // Close button should be hidden by default (opacity: 0)
     await expect(closeBtn).toHaveCSS('opacity', '0');
 
-    // Hover to reveal
+    // Hover to reveal (allow time for CSS transition under xvfb)
     await tabEntry.hover();
-    await expect(closeBtn).toHaveCSS('opacity', '1');
+    await expect(closeBtn).toHaveCSS('opacity', '1', { timeout: 5000 });
   });
 
   test('close all button appears on domain header hover', async ({ context, extensionId }) => {
@@ -41,9 +41,9 @@ test.describe('Close Actions', () => {
     // Hidden by default
     await expect(closeAllBtn).toHaveCSS('opacity', '0');
 
-    // Hover to reveal
+    // Hover to reveal (allow time for CSS transition under xvfb)
     await group.locator('.domain-header').hover();
-    await expect(closeAllBtn).toHaveCSS('opacity', '1');
+    await expect(closeAllBtn).toHaveCSS('opacity', '1', { timeout: 5000 });
   });
 
   test('close all shows confirmation dialog', async ({ context, extensionId }) => {
