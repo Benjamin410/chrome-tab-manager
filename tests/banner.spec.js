@@ -16,7 +16,7 @@ test.describe('Quick-open Banner', () => {
     await page.goto('https://example.com');
 
     // Wait for the banner to be injected by the content script
-    const banner = page.locator('#tab-manager-banner');
+    const banner = page.locator('.tm-banner');
     await expect(banner).toBeVisible({ timeout: 5000 });
 
     // Should have 'right' class
@@ -35,7 +35,7 @@ test.describe('Quick-open Banner', () => {
     const page = await context.newPage();
     await page.goto('https://example.com');
 
-    const banner = page.locator('#tab-manager-banner');
+    const banner = page.locator('.tm-banner');
     await expect(banner).toBeVisible({ timeout: 5000 });
     await expect(banner).toHaveClass(/left/);
   });
@@ -52,9 +52,9 @@ test.describe('Quick-open Banner', () => {
     const page = await context.newPage();
     await page.goto('https://example.com');
 
-    const banner = page.locator('#tab-manager-banner');
+    const banner = page.locator('.tm-banner');
     // Banner should exist in DOM but be hidden (display: none)
-    await page.waitForSelector('#tab-manager-banner', { state: 'attached', timeout: 5000 });
+    await page.waitForSelector('.tm-banner', { state: 'attached', timeout: 5000 });
     await expect(banner).toBeHidden();
   });
 

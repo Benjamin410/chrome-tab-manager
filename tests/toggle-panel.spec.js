@@ -113,10 +113,10 @@ test.describe('Toggle Side Panel', () => {
     // Open a real page with the banner
     const page = await context.newPage();
     await page.goto('https://example.com');
-    await page.waitForSelector('#tab-manager-banner', { timeout: 5000 });
+    await page.waitForSelector('.tm-banner', { timeout: 5000 });
 
     // Click the banner
-    await page.locator('#tab-manager-banner').click();
+    await page.locator('.tm-banner').click();
     await page.waitForTimeout(500);
 
     // Check if the service worker received the message
@@ -151,10 +151,10 @@ test.describe('Toggle Side Panel', () => {
     // Open a page — banner click will trigger toggle
     const page = await context.newPage();
     await page.goto('https://example.com');
-    await page.waitForSelector('#tab-manager-banner', { timeout: 5000 });
+    await page.waitForSelector('.tm-banner', { timeout: 5000 });
 
     // Click banner to trigger toggle
-    await page.locator('#tab-manager-banner').click();
+    await page.locator('.tm-banner').click();
     await page.waitForTimeout(500);
 
     const result = await sw.evaluate(() => globalThis.__lastToggleResult);

@@ -3,7 +3,7 @@
   "name": "Tab Manager",
   "version": "1.0.0",
   "description": "Alle Tabs nach Domain gruppiert im Side Panel verwalten",
-  "permissions": ["tabs", "sidePanel", "storage", "activeTab"],
+  "permissions": ["tabs", "sidePanel", "storage"],
   "content_scripts": [{
     "matches": ["<all_urls>"],
     "js": ["banner.js"],
