@@ -4,7 +4,9 @@
   "description": "A Chrome Side Panel extension that groups all your open tabs by domain, sorted by most recently accessed. Designed for users who work with many tabs and need a better way to stay organized.",
   "main": "background.js",
   "scripts": {
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "screenshots": "node scripts/screenshots.js",
+    "build": "./scripts/build.sh"
   },
   "repository": {
     "type": "git",

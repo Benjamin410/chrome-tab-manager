@@ -4,5 +4,7 @@
 *~
 .superpowers/
 node_modules/
+dist/
+store/screenshots/
 test-results/
 playwright-report/
