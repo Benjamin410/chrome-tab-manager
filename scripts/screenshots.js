@@ -1,27 +1,31 @@
 /**
  * Automated Chrome Web Store screenshot generator.
  *
+ * Produces 1280x800 composite images (website left, side panel right)
+ * as 24-bit PNG without alpha — Chrome Web Store compliant.
+ *
  * Usage:
- *   node scripts/screenshots.js          # generate all screenshots
- *   node scripts/screenshots.js --headed # watch in real-time
+ *   npm run screenshots            # generate all screenshots
+ *   npm run screenshots -- --headed # watch in real-time
  *
  * Output: store/screenshots/
  */
 
 const { chromium } = require('@playwright/test');
+const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
 const extensionPath = path.resolve(__dirname, '..', 'extension');
 const outputDir = path.resolve(__dirname, '..', 'store', 'screenshots');
 
-// Chrome Web Store screenshot size: 1280x800
-const VIEWPORT = { width: 1280, height: 800 };
+// Chrome Web Store required size
+const WIDTH = 1280;
+const HEIGHT = 800;
+const PANEL_WIDTH = 360;
+const SITE_WIDTH = WIDTH - PANEL_WIDTH;
 
-// Side panel width in Chrome
-const SIDE_PANEL_WIDTH = 360;
-
-// Websites to open for a realistic tab list with diverse domains
+// Websites to open for a realistic tab list
 const WEBSITES = [
   'https://github.com/trending',
   'https://github.com/features/actions',
@@ -37,13 +41,10 @@ const WEBSITES = [
   'https://calendar.google.com',
 ];
 
-async function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function launch() {
   const headed = process.argv.includes('--headed');
-
   const context = await chromium.launchPersistentContext('', {
     headless: false,
     args: [
@@ -56,7 +57,6 @@ async function launch() {
     viewport: null,
   });
 
-  // Get extension ID from service worker
   let sw = context.serviceWorkers()[0];
   if (!sw) sw = await context.waitForEvent('serviceworker');
   const extensionId = sw.url().split('/')[2];
@@ -71,10 +71,8 @@ async function openWebsites(context) {
     const page = await context.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
     pages.push(page);
-    // Small delay to avoid rate limiting
     await sleep(500);
   }
-  // Let favicons load
   await sleep(2000);
   return pages;
 }
@@ -83,21 +81,14 @@ async function openSidePanel(context, extensionId) {
   const page = await context.newPage();
   await page.goto(`chrome-extension://${extensionId}/sidepanel.html`);
   await page.waitForSelector('.domain-group');
-  // Wait for favicons to load
   await sleep(1500);
   return page;
 }
 
 async function setTheme(panel, theme) {
-  if (theme === 'dark') {
-    await panel.evaluate(() => {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    });
-  } else {
-    await panel.evaluate(() => {
-      document.documentElement.setAttribute('data-theme', 'light');
-    });
-  }
+  await panel.evaluate((t) => {
+    document.documentElement.setAttribute('data-theme', t);
+  }, theme);
   await sleep(300);
 }
 
@@ -111,11 +102,18 @@ async function setLanguage(panel, lang) {
 }
 
 async function expandFirstDomains(panel, count) {
-  // Click the first N domain headers to expand them
   const headers = await panel.$$('.domain-header');
   for (let i = 0; i < Math.min(count, headers.length); i++) {
     await headers[i].click();
     await sleep(200);
+  }
+}
+
+async function collapseAllDomains(panel) {
+  const expandedHeaders = await panel.$$('.domain-group.expanded .domain-header');
+  for (const header of expandedHeaders) {
+    await header.click();
+    await sleep(100);
   }
 }
 
@@ -131,44 +129,74 @@ async function clearSearch(panel) {
   await sleep(300);
 }
 
-async function screenshotPanel(panel, name) {
+/**
+ * Creates a 1280x800 composite: website on the left, side panel on the right.
+ * Uses an HTML page to composite and flatten to 24-bit PNG (no alpha).
+ */
+async function screenshotComposite(context, panel, sitePage, name) {
   const filePath = path.join(outputDir, `${name}.png`);
 
-  // Screenshot the side panel content at store-friendly dimensions
-  await panel.setViewportSize({ width: SIDE_PANEL_WIDTH, height: VIEWPORT.height });
+  // Capture site screenshot
+  await sitePage.setViewportSize({ width: SITE_WIDTH, height: HEIGHT });
   await sleep(300);
-  await panel.screenshot({ path: filePath, fullPage: false });
+  const siteBuffer = await sitePage.screenshot({ fullPage: false });
+  const siteBase64 = siteBuffer.toString('base64');
 
-  console.log(`  Saved: ${filePath}`);
-}
-
-async function screenshotComposite(panel, backgroundPage, name) {
-  // Take a composite screenshot showing the side panel alongside a website
-  const filePath = path.join(outputDir, `${name}.png`);
-
-  // Screenshot background page
-  await backgroundPage.setViewportSize({
-    width: VIEWPORT.width - SIDE_PANEL_WIDTH,
-    height: VIEWPORT.height,
-  });
-  await sleep(300);
-  const bgBuffer = await backgroundPage.screenshot({ fullPage: false });
-
-  // Screenshot side panel
-  await panel.setViewportSize({ width: SIDE_PANEL_WIDTH, height: VIEWPORT.height });
+  // Capture panel screenshot
+  await panel.setViewportSize({ width: PANEL_WIDTH, height: HEIGHT });
   await sleep(300);
   const panelBuffer = await panel.screenshot({ fullPage: false });
+  const panelBase64 = panelBuffer.toString('base64');
 
-  // Composite: panel on the right side, website on the left
-  // Using canvas-free approach: save both and let the user composite
-  // Or use a simple Node approach with raw pixel manipulation
-  const bgPath = path.join(outputDir, `_bg_${name}.png`);
-  const panelPath = path.join(outputDir, `_panel_${name}.png`);
-  fs.writeFileSync(bgPath, bgBuffer);
-  fs.writeFileSync(panelPath, panelBuffer);
+  // Use a page with canvas to composite both images into one 1280x800 PNG
+  const compositorPage = await context.newPage();
+  await compositorPage.setViewportSize({ width: WIDTH, height: HEIGHT });
 
-  console.log(`  Saved composite parts: ${bgPath}, ${panelPath}`);
-  console.log(`  Combine with: magick ${bgPath} ${panelPath} +append ${filePath}`);
+  const resultBase64 = await compositorPage.evaluate(async ({ siteB64, panelB64, w, h, sw, pw }) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+
+    // White background (ensures no alpha)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    async function loadImg(b64) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = `data:image/png;base64,${b64}`;
+      });
+    }
+
+    const siteImg = await loadImg(siteB64);
+    const panelImg = await loadImg(panelB64);
+
+    // Draw site on the left
+    ctx.drawImage(siteImg, 0, 0, sw, h);
+
+    // Draw 1px separator line
+    ctx.fillStyle = '#dadce0';
+    ctx.fillRect(sw, 0, 1, h);
+
+    // Draw panel on the right
+    ctx.drawImage(panelImg, sw + 1, 0, pw - 1, h);
+
+    // Export as PNG blob, read as base64
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const buf = await blob.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }, { siteB64: siteBase64, panelB64: panelBase64, w: WIDTH, h: HEIGHT, sw: SITE_WIDTH, pw: PANEL_WIDTH });
+
+  // Write the composite PNG
+  fs.writeFileSync(filePath, Buffer.from(resultBase64, 'base64'));
+  await compositorPage.close();
+
+  console.log(`  Saved: ${filePath}`);
 }
 
 async function main() {
@@ -178,66 +206,69 @@ async function main() {
   const { context, extensionId } = await launch();
 
   // Close default blank tab
-  const defaultPages = context.pages();
-  for (const p of defaultPages) {
+  for (const p of context.pages()) {
     if (p.url() === 'about:blank' || p.url() === 'chrome://newtab/') {
       await p.close().catch(() => {});
     }
   }
 
-  // Open diverse websites
   const webPages = await openWebsites(context);
-
-  // Open side panel
   console.log('Opening side panel...');
   const panel = await openSidePanel(context, extensionId);
-
-  // Expand first few domain groups so tabs are visible
   await expandFirstDomains(panel, 4);
 
+  // Pick background pages for composites
+  const githubPage = webPages.find(p => p.url().includes('github.com/trending'));
+  const mdnPage = webPages.find(p => p.url().includes('developer.mozilla.org'));
+  const bgPage = githubPage || webPages[0];
+  const bgPage2 = mdnPage || webPages[1];
+
   // --- Screenshot 1: Light theme overview ---
-  console.log('\n1. Light theme overview...');
+  console.log('\n1. Light theme — tab overview...');
   await setTheme(panel, 'light');
   await setLanguage(panel, 'en');
-  await screenshotPanel(panel, '01-light-overview');
+  await screenshotComposite(context, panel, bgPage, '01-light-overview');
 
   // --- Screenshot 2: Dark theme overview ---
-  console.log('2. Dark theme overview...');
+  console.log('2. Dark theme — tab overview...');
   await setTheme(panel, 'dark');
-  await screenshotPanel(panel, '02-dark-overview');
+  await screenshotComposite(context, panel, bgPage, '02-dark-overview');
 
   // --- Screenshot 3: Search in action ---
   console.log('3. Search functionality...');
   await setTheme(panel, 'light');
   await typeSearch(panel, 'github');
-  await screenshotPanel(panel, '03-search');
+  await screenshotComposite(context, panel, bgPage, '03-search');
   await clearSearch(panel);
 
   // --- Screenshot 4: German language ---
-  console.log('4. German language...');
+  console.log('4. Multi-language (German)...');
   await setLanguage(panel, 'de');
-  await screenshotPanel(panel, '04-german');
+  await screenshotComposite(context, panel, bgPage2, '04-german');
   await setLanguage(panel, 'en');
 
-  // --- Screenshot 5: Composite with website (light) ---
-  console.log('5. Composite with website (light)...');
-  await setTheme(panel, 'light');
-  const githubPage = webPages.find(p => p.url().includes('github.com'));
-  if (githubPage) {
-    await screenshotComposite(panel, githubPage, '05-composite-light');
-  }
-
-  // --- Screenshot 6: Composite with website (dark) ---
-  console.log('6. Composite with website (dark)...');
+  // --- Screenshot 5: Dark theme with different site ---
+  console.log('5. Dark theme — alternative view...');
   await setTheme(panel, 'dark');
-  if (githubPage) {
-    await screenshotComposite(panel, githubPage, '06-composite-dark');
+  await collapseAllDomains(panel);
+  await expandFirstDomains(panel, 3);
+  await screenshotComposite(context, panel, bgPage2, '05-dark-alt');
+
+  // Strip alpha channel from all PNGs (Chrome Web Store requires 24-bit PNG, no alpha)
+  console.log('\nStripping alpha channel...');
+  const pngFiles = fs.readdirSync(outputDir).filter(f => f.endsWith('.png'));
+  for (const file of pngFiles) {
+    const filePath = path.join(outputDir, file);
+    try {
+      // Use Python PIL to convert RGBA → RGB (works on macOS and Linux)
+      execSync(`python3 -c "from PIL import Image; Image.open('${filePath}').convert('RGB').save('${filePath}')"`, { stdio: 'ignore' });
+    } catch {
+      console.warn(`  Warning: could not strip alpha from ${file} (install Pillow: pip3 install Pillow)`);
+    }
   }
 
-  console.log('\nDone! Screenshots saved to store/screenshots/');
-  console.log('\nFor composite images, combine the parts:');
-  console.log('  magick _bg_*.png _panel_*.png +append <output>.png');
-  console.log('  or use any image editor to place them side by side.');
+  console.log('Done! Screenshots saved to store/screenshots/');
+  console.log('All images are 1280x800 24-bit PNG (Chrome Web Store compliant).');
 
   await context.close();
 }

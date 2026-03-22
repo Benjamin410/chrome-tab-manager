@@ -42,6 +42,9 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
+      - name: Install Pillow for alpha stripping
+        run: pip3 install Pillow
+
       - name: Generate store screenshots
         run: xvfb-run --auto-servernum npm run screenshots
         timeout-minutes: 5
