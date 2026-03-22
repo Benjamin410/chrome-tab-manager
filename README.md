@@ -131,4 +131,4 @@ npx playwright test --ui         # Interactive UI mode
 
 ## License
 
-MIT
+ISC
