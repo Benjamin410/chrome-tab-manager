@@ -27,6 +27,32 @@ jobs:
         run: xvfb-run --auto-servernum npx playwright test
         timeout-minutes: 10
 
+  screenshots:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Generate store screenshots
+        run: xvfb-run --auto-servernum npm run screenshots
+        timeout-minutes: 5
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-screenshots
+          path: store/screenshots/
+          retention-days: 90
+
   publish:
     needs: test
     runs-on: ubuntu-latest
