@@ -23,7 +23,10 @@ test.describe('Multi-language (i18n)', () => {
     // Verify German translations
     await expect(sidePanelPage.locator('#search')).toHaveAttribute('placeholder', 'Tabs suchen...');
     await expect(sidePanelPage.locator('#close-old')).toContainText('Alte schließen');
-    await expect(sidePanelPage.locator('#banner-label')).toContainText('Schnellöffner-Banner');
+    await expect(sidePanelPage.locator('#tab-sort-select')).toHaveAttribute(
+      'aria-label',
+      'Reihenfolge der Tabs'
+    );
   });
 
   test('switching to French changes UI text', async ({ sidePanelPage }) => {
@@ -46,7 +49,7 @@ test.describe('Multi-language (i18n)', () => {
 
   test('language setting persists after reload', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Switch to German

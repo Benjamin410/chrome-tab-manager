@@ -4,9 +4,16 @@
   "description": "A Chrome Side Panel extension that groups all your open tabs by domain, sorted by most recently accessed. Designed for users who work with many tabs and need a better way to stay organized.",
   "main": "background.js",
   "scripts": {
-    "test": "npx playwright test",
+    "test": "node -e \"console.log('E2E tests are not run by default. Use: npm run test:e2e'); process.exit(0)\"",
+    "test:e2e": "npx playwright test",
     "screenshots": "node scripts/screenshots.js",
-    "build": "./scripts/build.sh"
+    "build": "node scripts/build.js",
+    "dev": "concurrently -k -n browser,watch \"node scripts/launch-browser-dev.js\" \"node scripts/dev-watch.js\"",
+    "dev:edge": "cross-env BROWSER=edge npm run dev",
+    "dev:watch": "node scripts/dev-watch.js",
+    "browser:dev": "node scripts/launch-browser-dev.js",
+    "chrome:dev": "node scripts/launch-browser-dev.js",
+    "edge:dev": "cross-env BROWSER=edge node scripts/launch-browser-dev.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +28,12 @@
   },
   "homepage": "https://github.com/Benjamin410/chrome-tab-manager#readme",
   "devDependencies": {
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "archiver": "^7.0.1",
+    "chokidar": "^4.0.3",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "chrome-launcher": "^1.1.2",
+    "ws": "^8.18.0"
   }
 }

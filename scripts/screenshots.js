@@ -17,6 +17,7 @@ const path = require('path');
 const fs = require('fs');
 
 const extensionPath = path.resolve(__dirname, '..', 'extension');
+const playwrightTest = require('../tests/fixtures');
 const outputDir = path.resolve(__dirname, '..', 'store', 'screenshots');
 
 // Chrome Web Store required size
@@ -79,7 +80,7 @@ async function openWebsites(context) {
 
 async function openSidePanel(context, extensionId) {
   const page = await context.newPage();
-  await page.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+  await page.goto(`chrome-extension://${extensionId}/${playwrightTest.SIDE_PANEL_HTML}`);
   await page.waitForSelector('.domain-group');
   await sleep(1500);
   return page;

@@ -17,7 +17,7 @@ test.describe('Side Panel — Core UI', () => {
 
     // Open side panel
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // There should be a domain group for example.com
@@ -34,7 +34,7 @@ test.describe('Side Panel — Core UI', () => {
 
     // Open side panel
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // The first domain group should be the most recently accessed
@@ -93,7 +93,7 @@ test.describe('Side Panel — Core UI', () => {
 
     // Open side panel
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // Find and expand the example.com group
@@ -109,5 +109,47 @@ test.describe('Side Panel — Core UI', () => {
     // The tab should become active (chrome.tabs.update called)
     // We can verify the panel still works after clicking
     await expect(tabEntry).toBeVisible();
+  });
+
+  test('tab usage header shows aggregate summary without expanding panel', async ({ sidePanelPage }) => {
+    const summary = sidePanelPage.locator('#tab-usage-header-summary');
+    await expect(summary).toBeVisible();
+    await expect(summary).not.toBeEmpty();
+    const toggle = sidePanelPage.locator('#toggle-tab-usage');
+    await expect(toggle).toHaveAttribute('aria-label', /\d/);
+  });
+
+  test('tab history header shows open last and closed today', async ({ sidePanelPage }) => {
+    const today = sidePanelPage.locator('#tab-history-closed-today');
+    await expect(today).toBeVisible();
+    await expect(today).not.toBeEmpty();
+    const openLast = sidePanelPage.locator('#tab-history-open-last');
+    await expect(openLast).toBeVisible();
+    await expect(sidePanelPage.locator('#toggle-tab-history')).toHaveAttribute('aria-label', /\d/);
+  });
+
+  test('tab history panel expands and shows recently closed area', async ({ sidePanelPage }) => {
+    await sidePanelPage.locator('#toggle-tab-history').click();
+    await expect(sidePanelPage.locator('#tab-history-root')).toBeVisible();
+    await expect(sidePanelPage.locator('#tab-history-list')).toBeVisible();
+    await expect(sidePanelPage.locator('#tab-history-footnote')).not.toBeEmpty();
+    const search = sidePanelPage.locator('#tab-history-search');
+    await expect(search).toBeVisible();
+    await expect(search).toHaveAttribute('placeholder', /recently|Geschlossenes|fermés|cerrados/i);
+  });
+
+  test('tab usage panel expands and shows dashboard', async ({ sidePanelPage }) => {
+    await sidePanelPage.locator('#toggle-tab-usage').click();
+    await expect(sidePanelPage.locator('#tab-usage-root')).toBeVisible();
+    await expect(sidePanelPage.locator('#tab-usage-dashboard .tab-usage-metrics')).toBeVisible();
+    const values = sidePanelPage.locator('.tab-usage-metric-value');
+    await expect(values).toHaveCount(6);
+    await expect(values.first()).not.toBeEmpty();
+  });
+
+  test('tab usage shows detailed tab table', async ({ sidePanelPage }) => {
+    await sidePanelPage.locator('#toggle-tab-usage').click();
+    await expect(sidePanelPage.locator('#tab-usage-list-tab .tab-usage-table')).toBeVisible();
+    await expect(sidePanelPage.locator('#tab-usage-list-tab thead th')).toHaveCount(7);
   });
 });

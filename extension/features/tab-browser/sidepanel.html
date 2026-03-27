@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="sidepanel.css">
+  <title>Tab Manager</title>
+</head>
+<body>
+  <div class="panels-stack">
+    <div class="tab-browser-main">
+      <div class="tab-browser-toolbar">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" id="search" class="search-input" placeholder="Search tabs...">
+          </div>
+          <div class="filter-row">
+            <select id="window-filter" class="window-filter">
+              <option value="all">All windows</option>
+            </select>
+            <button id="window-toggle" class="window-toggle" title="Window grouping">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/>
+              </svg>
+              <span id="window-toggle-label">Windows</span>
+            </button>
+            <button type="button" id="labels-toggle" class="window-toggle" aria-pressed="true" title="Page labels">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+                <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h7l3 3v9a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm3 1v2h8V6H6zm0 4v6h8v-6H6z" clip-rule="evenodd"/>
+                <path d="M7 8h6v1H7V8zm0 3h4v1H7v-1z"/>
+              </svg>
+              <span id="labels-toggle-label">Labels</span>
+            </button>
+          </div>
+          <div class="status-bar">
+            <span id="tab-count" class="status-text"></span>
+            <button id="close-old" class="link-button">Close old (&gt;7d)</button>
+          </div>
+          <div class="tab-sort-toolbar" role="toolbar">
+            <div class="tab-sort-dropdown-wrap">
+              <span class="tab-sort-icon-wrap" aria-hidden="true">
+                <svg class="tab-sort-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                  <path d="M4 14V6h2v8H4zm5 0V4h2v10H9zm5 0v-4h2v4h-2z"/>
+                </svg>
+              </span>
+              <select id="tab-sort-select" class="tab-sort-select">
+                <option value="titleAsc">A–Z</option>
+                <option value="titleDesc">Z–A</option>
+                <option value="timeAsc">Time ↑</option>
+                <option value="timeDesc">Time ↓</option>
+              </select>
+            </div>
+            <button type="button" id="merge-same-sites" class="tab-merge-btn">
+              <svg class="tab-merge-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                <path d="M4 4a2 2 0 012-2h7l3 3v10a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V6h-3V4H6z"/>
+                <path opacity="0.45" d="M2 7h2v9a2 2 0 002 2h1v-2H6a2 2 0 01-2-2V7H2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      <main id="tab-list" class="tab-list"></main>
+    </div>
+
+    <section class="feature-panel feature-panel--collapsible collapsed" id="panel-tab-history" aria-labelledby="feature-title-tab-history">
+      <div class="feature-panel-head-row feature-panel-head-row--feature">
+        <div class="feature-panel-head-cluster">
+          <span class="feature-panel-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          </span>
+          <span class="feature-panel-title" id="feature-title-tab-history">Tab history</span>
+          <span class="feature-panel-header-secondary tab-history-header-info" id="tab-history-closed-today" aria-live="polite"></span>
+          <div class="tab-history-header-actions" id="tab-history-header-toolbar" role="group">
+            <button type="button" class="tab-history-header-btn" id="tab-history-open-last" disabled></button>
+          </div>
+          <span class="feature-panel-head-spacer" aria-hidden="true"></span>
+          <button type="button" class="feature-panel-collapse-btn" id="toggle-tab-history" aria-expanded="false" aria-controls="panel-tab-history-body">
+            <span class="feature-panel-chevron" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div class="feature-panel-body tab-history-body" id="panel-tab-history-body" hidden>
+        <div id="tab-history-root">
+          <p class="tab-history-footnote" id="tab-history-footnote"></p>
+          <div class="tab-history-search-wrap">
+            <svg class="tab-history-search-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="search" id="tab-history-search" class="tab-history-search-input" autocomplete="off" enterkeyhint="search">
+          </div>
+          <div id="tab-history-list" class="tab-history-list-wrap" role="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-panel feature-panel--collapsible collapsed" id="panel-tab-usage" aria-labelledby="feature-title-tab-usage">
+      <div class="feature-panel-head-row feature-panel-head-row--feature">
+        <div class="feature-panel-head-cluster">
+          <span class="feature-panel-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M3 12a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm4-4a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H8a1 1 0 01-1-1V8zm4-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+          </span>
+          <span class="feature-panel-title" id="feature-title-tab-usage">Tab usage</span>
+          <span class="feature-panel-header-secondary tab-usage-header-summary" id="tab-usage-header-summary" aria-hidden="true"></span>
+          <span class="feature-panel-head-spacer" aria-hidden="true"></span>
+          <button type="button" class="feature-panel-collapse-btn" id="toggle-tab-usage" aria-expanded="false" aria-controls="panel-tab-usage-body">
+            <span class="feature-panel-chevron" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div class="feature-panel-body tab-usage-body" id="panel-tab-usage-body" hidden>
+        <div id="tab-usage-root">
+          <p class="tab-usage-footnote" id="tab-usage-footnote"></p>
+          <div class="tab-usage-dashboard" id="tab-usage-dashboard" aria-live="polite"></div>
+          <div class="tab-usage-subsection">
+            <h3 class="tab-usage-subsection-title" id="tab-usage-heading-tabs"></h3>
+            <div id="tab-usage-list-tab" class="tab-usage-list-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="sidepanel-footer" role="contentinfo">
+    <div class="footer-banner-controls" role="group">
+      <button type="button" id="banner-left" class="banner-side-btn" title="Left">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 3h2v10H2V3zm4 2h8v2H6V5zm0 4h8v2H6V9z"/></svg>
+      </button>
+      <button type="button" id="banner-right" class="banner-side-btn" title="Right">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M12 3h2v10h-2V3zM2 5h8v2H2V5zm0 4h8v2H2V9z"/></svg>
+      </button>
+      <button type="button" id="banner-off" class="banner-side-btn" title="Off">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3.646 3.646a.5.5 0 01.708 0L8 7.293l3.646-3.647a.5.5 0 01.708.708L8.707 8l3.647 3.646a.5.5 0 01-.708.708L8 8.707l-3.646 3.647a.5.5 0 01-.708-.708L7.293 8 3.646 4.354a.5.5 0 010-.708z"/></svg>
+      </button>
+    </div>
+    <select id="lang-select" class="lang-select" title="Language" aria-label="Language"></select>
+    <button id="theme-toggle" class="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+      </svg>
+    </button>
+  </footer>
+
+  <div id="confirm-dialog" class="confirm-dialog hidden">
+    <div class="confirm-content">
+      <p id="confirm-message"></p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok" class="btn btn-danger">Close</button>
+      </div>
+    </div>
+  </div>
+  <script src="../../core/i18n.js"></script>
+  <script src="../tab-history/tab-history.js"></script>
+  <script src="../tab-usage/tab-usage.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
