@@ -4,6 +4,10 @@ let expandedDomains = new Set();
 let groupByWindow = false;
 let filterWindowId = null;
 let groupOperationInProgress = false;
+/** When true, show HTML head-derived labels on domain rows and tab rows. */
+let showPageLabels = true;
+/** @type {'titleAsc' | 'titleDesc' | 'timeAsc' | 'timeDesc'} */
+let tabSortMode = 'timeDesc';
 
 // Tab group colors
 const TAB_GROUP_COLORS = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
@@ -25,6 +29,8 @@ const closeOldEl = document.getElementById('close-old');
 const themeToggleEl = document.getElementById('theme-toggle');
 const windowToggleEl = document.getElementById('window-toggle');
 const windowToggleLabelEl = document.getElementById('window-toggle-label');
+const labelsToggleEl = document.getElementById('labels-toggle');
+const labelsToggleLabelEl = document.getElementById('labels-toggle-label');
 const windowFilterEl = document.getElementById('window-filter');
 const langSelectEl = document.getElementById('lang-select');
 const confirmDialog = document.getElementById('confirm-dialog');
@@ -34,7 +40,12 @@ const confirmOk = document.getElementById('confirm-ok');
 const bannerLeftBtn = document.getElementById('banner-left');
 const bannerRightBtn = document.getElementById('banner-right');
 const bannerOffBtn = document.getElementById('banner-off');
-const bannerLabel = document.getElementById('banner-label');
+const tabSortSelectEl = document.getElementById('tab-sort-select');
+const mergeSameSitesBtn = document.getElementById('merge-same-sites');
+const tabSortToolbarEl = document.querySelector('.tab-sort-toolbar');
+const footerBannerControlsEl = document.querySelector('.footer-banner-controls');
+const featureTitleTabHistory = document.getElementById('feature-title-tab-history');
+const featureTitleTabUsage = document.getElementById('feature-title-tab-usage');
 
 // Apply all translatable strings to the UI
 function applyTranslations() {
@@ -44,10 +55,85 @@ function applyTranslations() {
   windowToggleLabelEl.textContent = t.windowGrouping;
   confirmCancel.textContent = t.cancel;
   confirmOk.textContent = t.close;
-  bannerLabel.textContent = t.edgeBanner;
+  if (tabSortToolbarEl) tabSortToolbarEl.setAttribute('aria-label', t.tabSortToolbarAria);
+  if (footerBannerControlsEl) footerBannerControlsEl.setAttribute('aria-label', t.bannerEdgePositionGroup);
+  tabSortSelectEl.setAttribute('aria-label', t.tabSortSelectAria);
+  tabSortSelectEl.querySelector('option[value="titleAsc"]').textContent = t.sortTitleAsc;
+  tabSortSelectEl.querySelector('option[value="titleDesc"]').textContent = t.sortTitleDesc;
+  tabSortSelectEl.querySelector('option[value="timeAsc"]').textContent = t.sortTimeAsc;
+  tabSortSelectEl.querySelector('option[value="timeDesc"]').textContent = t.sortTimeDesc;
+  mergeSameSitesBtn.title = t.mergeSameSitesTitle;
+  mergeSameSitesBtn.setAttribute('aria-label', t.mergeSameSitesTitle);
+  if (labelsToggleEl && labelsToggleLabelEl) {
+    labelsToggleLabelEl.textContent = t.pageLabels;
+    labelsToggleEl.setAttribute('aria-label', t.pageLabelsToggleAria);
+    updateLabelsToggle();
+  }
+  bannerLeftBtn.title = t.bannerPositionLeft;
+  bannerLeftBtn.setAttribute('aria-label', t.bannerPositionLeft);
+  bannerRightBtn.title = t.bannerPositionRight;
+  bannerRightBtn.setAttribute('aria-label', t.bannerPositionRight);
+  bannerOffBtn.title = t.bannerPositionOff;
+  bannerOffBtn.setAttribute('aria-label', t.bannerPositionOff);
+  featureTitleTabHistory.textContent = t.featureTabHistory;
+  featureTitleTabUsage.textContent = t.featureTabUsage;
+  if (typeof window.tabHistoryApplyTranslations === 'function') {
+    window.tabHistoryApplyTranslations();
+  }
+  if (typeof window.tabUsageApplyTranslations === 'function') {
+    window.tabUsageApplyTranslations();
+  }
+  updateSortSelect();
   updateWindowToggle();
   updateWindowFilter();
   render();
+}
+
+/**
+ * Collapsible feature panels (tab history, tab usage); tab browser stays always open.
+ */
+async function initFeaturePanels() {
+  const historySection = document.getElementById('panel-tab-history');
+  const usageSection = document.getElementById('panel-tab-usage');
+  const historyBody = document.getElementById('panel-tab-history-body');
+  const usageBody = document.getElementById('panel-tab-usage-body');
+  const historyBtn = document.getElementById('toggle-tab-history');
+  const usageBtn = document.getElementById('toggle-tab-usage');
+
+  function setExpanded(sectionEl, bodyEl, btnEl, expanded) {
+    sectionEl.classList.toggle('collapsed', !expanded);
+    bodyEl.hidden = !expanded;
+    btnEl.setAttribute('aria-expanded', String(expanded));
+  }
+
+  const { panelTabUsageExpanded } = await chrome.storage.local.get(['panelTabUsageExpanded']);
+
+  // Tab history always starts collapsed each time the side panel opens (not persisted).
+  setExpanded(historySection, historyBody, historyBtn, false);
+  setExpanded(usageSection, usageBody, usageBtn, !!panelTabUsageExpanded);
+
+  historyBtn.addEventListener('click', () => {
+    const expand = historyBody.hidden;
+    setExpanded(historySection, historyBody, historyBtn, expand);
+  });
+  const historyIcon = historySection?.querySelector(
+    '.feature-panel-head-cluster .feature-panel-icon'
+  );
+  const historyTitle = document.getElementById('feature-title-tab-history');
+  if (historyIcon) historyIcon.addEventListener('click', () => historyBtn.click());
+  if (historyTitle) historyTitle.addEventListener('click', () => historyBtn.click());
+
+  usageBtn.addEventListener('click', async () => {
+    const expand = usageBody.hidden;
+    setExpanded(usageSection, usageBody, usageBtn, expand);
+    await chrome.storage.local.set({ panelTabUsageExpanded: expand });
+  });
+  const usageIcon = usageSection?.querySelector(
+    '.feature-panel-head-cluster .feature-panel-icon'
+  );
+  const usageTitle = document.getElementById('feature-title-tab-usage');
+  if (usageIcon) usageIcon.addEventListener('click', () => usageBtn.click());
+  if (usageTitle) usageTitle.addEventListener('click', () => usageBtn.click());
 }
 
 // Language selector
@@ -85,17 +171,39 @@ themeToggleEl.addEventListener('click', async () => {
   await chrome.storage.local.set({ themePreference: next });
 });
 
+/**
+ * Syncs the page labels toggle button with `showPageLabels`.
+ */
+function updateLabelsToggle() {
+  if (!labelsToggleEl) return;
+  labelsToggleEl.classList.toggle('active', showPageLabels);
+  labelsToggleEl.setAttribute('aria-pressed', String(showPageLabels));
+  labelsToggleEl.title = showPageLabels ? t.pageLabelsOn : t.pageLabelsOff;
+}
+
 // Window grouping toggle
 async function initSettings() {
-  const { groupByWindowPref } = await chrome.storage.local.get('groupByWindowPref');
+  const { groupByWindowPref, showPageLabelsPref } = await chrome.storage.local.get([
+    'groupByWindowPref',
+    'showPageLabelsPref',
+  ]);
   groupByWindow = groupByWindowPref || false;
+  showPageLabels = showPageLabelsPref !== false;
   updateWindowToggle();
+  updateLabelsToggle();
 }
 
 windowToggleEl.addEventListener('click', async () => {
   groupByWindow = !groupByWindow;
   await chrome.storage.local.set({ groupByWindowPref: groupByWindow });
   updateWindowToggle();
+  render();
+});
+
+labelsToggleEl.addEventListener('click', async () => {
+  showPageLabels = !showPageLabels;
+  await chrome.storage.local.set({ showPageLabelsPref: showPageLabels });
+  updateLabelsToggle();
   render();
 });
 
@@ -133,6 +241,8 @@ confirmOk.addEventListener('click', () => {
 // Data loading
 async function loadTabs() {
   allTabs = await chrome.tabs.query({});
+  const { tabPageLabels } = await chrome.storage.local.get('tabPageLabels');
+  const labelMap = tabPageLabels && typeof tabPageLabels === 'object' ? tabPageLabels : {};
   // Enrich tabs with their group color (query all groups at once for cross-window reliability)
   const groupColorMap = new Map();
   try {
@@ -145,7 +255,19 @@ async function loadTabs() {
     if (tab.groupId !== undefined && tab.groupId !== -1) {
       tab.groupColor = groupColorMap.get(tab.groupId) ?? null;
     }
+    const pl = labelMap[String(tab.id)];
+    if (pl) {
+      tab.pageLabel = pl;
+    } else {
+      delete tab.pageLabel;
+    }
   }
+  const tabsWithLabels = allTabs.filter((t) => t.pageLabel).length;
+  console.log('[TabManager page-label] sidepanel merge', {
+    tabCount: allTabs.length,
+    tabsWithStoredLabels: tabsWithLabels,
+    storageLabelEntries: Object.keys(labelMap).length,
+  });
   updateWindowFilter();
   render();
 }
@@ -158,18 +280,6 @@ function getDomain(url) {
   }
 }
 
-function getRelativeTime(timestamp) {
-  if (!timestamp) return '';
-  const diff = Date.now() - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return t.now;
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  return `${days}d`;
-}
-
 function getFaviconUrl(url) {
   try {
     const u = new URL(url);
@@ -177,6 +287,29 @@ function getFaviconUrl(url) {
   } catch {
     return '';
   }
+}
+
+/**
+ * Truncates a string for display in the group label prefix.
+ * @param {string} s
+ * @param {number} max
+ * @returns {string}
+ */
+function truncateForGroupLabel(s, max) {
+  const t = (s || '').trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, Math.max(0, max - 1))}…`;
+}
+
+/**
+ * Whether to show the domain group label block: multiple tabs on this host and labels enabled,
+ * with at least one tab carrying a page label. Single-tab groups show the label only on the tab row.
+ * @param {object[]} tabs
+ * @returns {boolean}
+ */
+function shouldShowGroupLabelStack(tabs) {
+  if (!showPageLabels || tabs.length < 2) return false;
+  return tabs.some((tab) => !!tab.pageLabel);
 }
 
 // Update window filter dropdown
@@ -204,7 +337,58 @@ function updateWindowFilter() {
     filterWindowId = null;
   }
 
-  windowFilterEl.closest('.filter-row').style.display = windowIds.length > 1 ? '' : 'none';
+  // Only hide the window dropdown when a single window; keep grouping + labels toggles visible.
+  windowFilterEl.style.display = windowIds.length > 1 ? '' : 'none';
+}
+
+function tabLastAccessed(tab) {
+  return tab.lastAccessed || 0;
+}
+
+/**
+ * Sorts tabs within one site group according to the current tab sort mode.
+ * @param {object[]} domainTabs
+ * @param {'titleAsc' | 'titleDesc' | 'timeAsc' | 'timeDesc'} mode
+ */
+function sortTabsInDomain(domainTabs, mode) {
+  const copy = [...domainTabs];
+  if (mode === 'titleAsc') {
+    copy.sort((a, b) => (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' }));
+  } else if (mode === 'titleDesc') {
+    copy.sort((a, b) => (b.title || '').localeCompare(a.title || '', undefined, { sensitivity: 'base' }));
+  } else if (mode === 'timeAsc') {
+    copy.sort((a, b) => tabLastAccessed(a) - tabLastAccessed(b));
+  } else {
+    copy.sort((a, b) => tabLastAccessed(b) - tabLastAccessed(a));
+  }
+  return copy;
+}
+
+/**
+ * Orders site groups: by domain name (title modes) or by min/max lastAccessed (time modes).
+ * @param {[string, object[]][]} entries
+ * @param {'titleAsc' | 'titleDesc' | 'timeAsc' | 'timeDesc'} mode
+ */
+function sortDomainEntries(entries, mode) {
+  const copy = [...entries];
+  if (mode === 'titleAsc') {
+    copy.sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: 'base' }));
+  } else if (mode === 'titleDesc') {
+    copy.sort((a, b) => b[0].localeCompare(a[0], undefined, { sensitivity: 'base' }));
+  } else if (mode === 'timeAsc') {
+    copy.sort((a, b) => {
+      const minA = Math.min(...a[1].map(tabLastAccessed));
+      const minB = Math.min(...b[1].map(tabLastAccessed));
+      return minA - minB;
+    });
+  } else {
+    copy.sort((a, b) => {
+      const maxA = Math.max(...a[1].map(tabLastAccessed));
+      const maxB = Math.max(...b[1].map(tabLastAccessed));
+      return maxB - maxA;
+    });
+  }
+  return copy;
 }
 
 // Group tabs by domain
@@ -218,18 +402,16 @@ function groupDomains(tabs) {
     domains.get(domain).push(tab);
   }
 
-  for (const [, domainTabs] of domains) {
-    domainTabs.sort((a, b) => (b.lastAccessed || 0) - (a.lastAccessed || 0));
-  }
-
-  const sorted = [...domains.entries()].sort(
-    (a, b) => (b[1][0].lastAccessed || 0) - (a[1][0].lastAccessed || 0)
-  );
-
-  return sorted.map(([domain, tabs]) => ({
+  const entries = [...domains.entries()].map(([domain, domainTabs]) => [
     domain,
-    tabs,
-    favicon: getFaviconUrl(tabs[0].url || ''),
+    sortTabsInDomain(domainTabs, tabSortMode),
+  ]);
+  const sortedEntries = sortDomainEntries(entries, tabSortMode);
+
+  return sortedEntries.map(([domain, sortedTabs]) => ({
+    domain,
+    tabs: sortedTabs,
+    favicon: getFaviconUrl(sortedTabs[0].url || ''),
   }));
 }
 
@@ -294,8 +476,10 @@ function renderDomainGroup(group, windowId) {
   domainEl.className = `domain-group${isExpanded ? ' expanded' : ''}`;
   domainEl.dataset.domainKey = domainKey;
 
+  const showGroupLabel = shouldShowGroupLabelStack(group.tabs);
+
   const header = document.createElement('div');
-  header.className = 'domain-header';
+  header.className = 'domain-header' + (showGroupLabel ? ' has-domain-label' : '');
   const arrow = document.createElement('span');
   arrow.className = 'domain-arrow';
   arrow.innerHTML = '&#9654;';
@@ -312,11 +496,29 @@ function renderDomainGroup(group, windowId) {
   const nameSpan = document.createElement('span');
   nameSpan.className = 'domain-name';
   nameSpan.textContent = group.domain;
-  header.appendChild(nameSpan);
+
+  const headerText = document.createElement('div');
+  headerText.className = 'domain-header-text';
+  headerText.appendChild(nameSpan);
+  if (showGroupLabel) {
+    const stack = document.createElement('div');
+    stack.className = 'domain-group-label-stack';
+    stack.setAttribute('role', 'group');
+    for (const tab of group.tabs) {
+      if (!tab.pageLabel) continue;
+      const line = document.createElement('div');
+      line.className = 'domain-group-label-line';
+      const shortTitle = truncateForGroupLabel(tab.title || 'Untitled', 42);
+      line.textContent = `${shortTitle}: ${tab.pageLabel}`;
+      stack.appendChild(line);
+    }
+    headerText.appendChild(stack);
+  }
+  header.appendChild(headerText);
 
   const ageSpan = document.createElement('span');
   ageSpan.className = 'domain-age';
-  ageSpan.textContent = getRelativeTime(group.tabs[0].lastAccessed);
+  ageSpan.textContent = formatRelativeTime(group.tabs[0].lastAccessed);
   header.appendChild(ageSpan);
 
   const countSpan = document.createElement('span');
@@ -400,9 +602,10 @@ function renderDomainGroup(group, windowId) {
 
   for (const tab of group.tabs) {
     const tabEl = document.createElement('div');
-    tabEl.className = 'tab-entry';
+    tabEl.className = 'tab-entry' + (showPageLabels && tab.pageLabel ? ' has-tab-label' : '');
     tabEl.dataset.tabId = tab.id;
-    tabEl.dataset.searchText = `${(tab.title || '').toLowerCase()} ${(tab.url || '').toLowerCase()}`;
+    const pl = (tab.pageLabel || '').toLowerCase();
+    tabEl.dataset.searchText = `${(tab.title || '').toLowerCase()} ${(tab.url || '').toLowerCase()} ${pl}`;
 
     const isActive = tab.active;
 
@@ -410,14 +613,26 @@ function renderDomainGroup(group, windowId) {
     dot.className = 'tab-active-dot' + (isActive ? '' : ' inactive');
     tabEl.appendChild(dot);
 
+    const titleWrap = document.createElement('div');
+    titleWrap.className = 'tab-title-wrap';
+
     const titleSpan = document.createElement('span');
     titleSpan.className = 'tab-title' + (isActive ? '' : ' inactive-tab');
     titleSpan.textContent = tab.title || 'Untitled';
-    tabEl.appendChild(titleSpan);
+    titleWrap.appendChild(titleSpan);
+
+    if (showPageLabels && tab.pageLabel) {
+      const pageLabelEl = document.createElement('span');
+      pageLabelEl.className = 'tab-page-label';
+      pageLabelEl.textContent = tab.pageLabel;
+      titleWrap.appendChild(pageLabelEl);
+    }
+
+    tabEl.appendChild(titleWrap);
 
     const tabAge = document.createElement('span');
     tabAge.className = 'tab-age';
-    tabAge.textContent = getRelativeTime(tab.lastAccessed);
+    tabAge.textContent = formatRelativeTime(tab.lastAccessed);
     tabEl.appendChild(tabAge);
 
     const tabCloseBtn = document.createElement('button');
@@ -509,6 +724,67 @@ closeOldEl.addEventListener('click', async () => {
   }
 });
 
+function updateSortSelect() {
+  tabSortSelectEl.value = tabSortMode;
+}
+
+async function initTabSortSettings() {
+  const { tabSortMode: stored } = await chrome.storage.local.get('tabSortMode');
+  if (stored && ['titleAsc', 'titleDesc', 'timeAsc', 'timeDesc'].includes(stored)) {
+    tabSortMode = stored;
+  }
+  updateSortSelect();
+}
+
+tabSortSelectEl.addEventListener('change', async () => {
+  const mode = tabSortSelectEl.value;
+  if (!['titleAsc', 'titleDesc', 'timeAsc', 'timeDesc'].includes(mode)) return;
+  tabSortMode = mode;
+  await chrome.storage.local.set({ tabSortMode });
+  render();
+});
+
+/**
+ * When merging duplicate site tabs, keep the active tab if any, else the most recently accessed.
+ * @param {object[]} tabs
+ */
+function pickTabToKeep(tabs) {
+  const active = tabs.find((t) => t.active);
+  if (active) return active;
+  return tabs.reduce((best, t) => (tabLastAccessed(t) > tabLastAccessed(best) ? t : best), tabs[0]);
+}
+
+/**
+ * Closes extra tabs per hostname so only one tab remains per site (current window filter applies).
+ */
+async function mergeSameSites() {
+  const tabs = filterWindowId ? allTabs.filter((tab) => tab.windowId === filterWindowId) : allTabs;
+  const byDomain = new Map();
+  for (const tab of tabs) {
+    const d = getDomain(tab.url || '');
+    if (!byDomain.has(d)) byDomain.set(d, []);
+    byDomain.get(d).push(tab);
+  }
+  const toClose = [];
+  for (const [, list] of byDomain) {
+    if (list.length < 2) continue;
+    const keep = pickTabToKeep(list);
+    for (const t of list) {
+      if (t.id !== keep.id) toClose.push(t.id);
+    }
+  }
+  if (toClose.length === 0) {
+    await showConfirm(t.noDuplicatesToMerge);
+    return;
+  }
+  const confirmed = await showConfirm(t.confirmMergeDuplicates(toClose.length));
+  if (confirmed) {
+    await chrome.tabs.remove(toClose);
+  }
+}
+
+mergeSameSitesBtn.addEventListener('click', () => mergeSameSites());
+
 // Banner settings
 function updateBannerButtons(side, visible) {
   bannerLeftBtn.classList.toggle('active', visible && side === 'left');
@@ -553,13 +829,23 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 });
 
+// Refresh when HTML head labels are updated (content script → storage)
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes.tabPageLabels || groupOperationInProgress) return;
+  loadTabs();
+});
+
 // Initialize
 async function init() {
   await initI18n();
   initLangSelect();
   await initTheme();
   await initSettings();
+  await initFeaturePanels();
+  await initTabSortSettings();
   await initBannerSettings();
+  initTabHistory();
+  initTabUsage();
   applyTranslations();
   await loadTabs();
 }

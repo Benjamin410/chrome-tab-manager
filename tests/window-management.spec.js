@@ -2,14 +2,13 @@ const { expect } = require('@playwright/test');
 const test = require('./fixtures');
 
 test.describe('Window Management', () => {
-  test('window filter row is hidden with only one window', async ({ sidePanelPage }) => {
-    // With a single browser window, the filter row should be hidden
-    const filterRow = sidePanelPage.locator('.filter-row');
-    await expect(filterRow).toBeHidden();
+  test('window filter dropdown is hidden with only one window', async ({ sidePanelPage }) => {
+    // With a single browser window, only the window selector is hidden (toggles stay visible).
+    const windowFilter = sidePanelPage.locator('#window-filter');
+    await expect(windowFilter).toBeHidden();
   });
 
   test('window grouping toggle exists and has correct initial state', async ({ sidePanelPage }) => {
-    // The toggle exists in the DOM even when hidden
     const toggle = sidePanelPage.locator('#window-toggle');
     await expect(toggle).toBeAttached();
 
@@ -19,9 +18,6 @@ test.describe('Window Management', () => {
   });
 
   test('window grouping toggle can be clicked programmatically', async ({ sidePanelPage }) => {
-    // Make the filter row visible so we can interact with the toggle
-    await sidePanelPage.locator('.filter-row').evaluate(el => el.style.display = 'flex');
-
     const toggle = sidePanelPage.locator('#window-toggle');
 
     // Click to enable
@@ -35,11 +31,9 @@ test.describe('Window Management', () => {
 
   test('window grouping setting persists after reload', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
-    // Make visible and enable grouping
-    await panel.locator('.filter-row').evaluate(el => el.style.display = 'flex');
     await panel.locator('#window-toggle').click();
     await expect(panel.locator('#window-toggle')).toHaveClass(/active/);
 
@@ -51,8 +45,6 @@ test.describe('Window Management', () => {
     const isActive = await panel.locator('#window-toggle').evaluate(el => el.classList.contains('active'));
     expect(isActive).toBe(true);
 
-    // Clean up
-    await panel.locator('.filter-row').evaluate(el => el.style.display = 'flex');
     await panel.locator('#window-toggle').click();
   });
 
@@ -60,7 +52,6 @@ test.describe('Window Management', () => {
     // Ensure grouping is off
     const isActive = await sidePanelPage.locator('#window-toggle').evaluate(el => el.classList.contains('active'));
     if (isActive) {
-      await sidePanelPage.locator('.filter-row').evaluate(el => el.style.display = 'flex');
       await sidePanelPage.locator('#window-toggle').click();
     }
 

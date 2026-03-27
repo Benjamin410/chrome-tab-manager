@@ -26,7 +26,7 @@
 
 - [ ] Manual testing done
 - [ ] E2E tests added/updated
-- [ ] Existing tests still pass (`npm test`)
+- [ ] Existing tests still pass (`npm run test:e2e`)
 
 ## Screenshots
 

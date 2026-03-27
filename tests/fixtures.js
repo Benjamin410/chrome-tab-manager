@@ -3,11 +3,14 @@ const path = require('path');
 
 const extensionPath = path.resolve(__dirname, '..', 'extension');
 
+/** Relative path from the extension root to the side panel HTML (manifest default_path). */
+const SIDE_PANEL_HTML = 'features/tab-browser/sidepanel.html';
+
 /**
  * Custom fixture that launches Chrome with the extension loaded.
  * Provides `context`, `extensionId`, and a helper to open the side panel page.
  */
-module.exports = base.extend({
+const test = base.extend({
   // Override context to launch with the extension
   context: async ({}, use) => {
     const context = await chromium.launchPersistentContext('', {
@@ -44,9 +47,12 @@ module.exports = base.extend({
   // Helper: opens the side panel HTML directly in a new tab (for UI testing)
   sidePanelPage: async ({ context, extensionId }, use) => {
     const page = await context.newPage();
-    await page.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await page.goto(`chrome-extension://${extensionId}/${SIDE_PANEL_HTML}`);
     // Wait for the panel to initialize (tabs loaded and rendered)
     await page.waitForSelector('.domain-group, .empty-state');
     await use(page);
   },
 });
+
+test.SIDE_PANEL_HTML = SIDE_PANEL_HTML;
+module.exports = test;

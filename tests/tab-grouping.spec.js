@@ -6,7 +6,7 @@ const test = require('./fixtures');
  */
 async function openPanel(context, extensionId) {
   const panel = await context.newPage();
-  await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+  await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
   await panel.waitForSelector('.domain-group');
   return panel;
 }
