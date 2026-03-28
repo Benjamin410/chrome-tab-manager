@@ -31,6 +31,8 @@ A Chrome Side Panel extension that groups all your open tabs by domain, sorted b
 - **Quick-open banner** — Clickable banner on the page edge to open/close the panel, configurable (left/right/off)
 - **Light & dark theme** — Follows your system theme automatically, with a manual toggle
 - **Multi-language** — English, German, French, and Spanish (auto-detected from browser, switchable)
+- **Tab history** — Reopen recently closed tabs and windows (Chrome sessions list)
+- **Tab usage** — Dashboard counts and a per-tab table (window, position, load status, last active, tracked-since, badges)
 - **Live updates** — The tab list updates automatically when you open, close, or switch tabs
 - **Incognito support** — Can display incognito tabs when enabled
 
@@ -58,6 +60,12 @@ To include incognito tabs in the list:
 3. Enable **Allow in Incognito**
 
 > **Note:** Chrome extensions can only access tabs within their own profile. Tabs from other Chrome profiles are not visible — this is a Chrome security limitation.
+
+### Permissions
+
+Chrome lists these when you install or update the extension:
+
+- **tabs**, **tabGroups**, **sidePanel**, **storage**, **sessions** — tab list, native groups, panel, settings, and recently closed sessions for Tab history
 
 ## Usage
 
@@ -124,10 +132,12 @@ The project includes an end-to-end test suite using [Playwright](https://playwri
 
 ```bash
 npm install                      # Install dependencies
-npm test                         # Run all tests
+npm run test:e2e                 # Run all E2E tests (Playwright)
 npx playwright test --headed     # Run with visible browser
 npx playwright test --ui         # Interactive UI mode
 ```
+
+`npm test` does not run the suite; it prints a reminder to use `npm run test:e2e`.
 
 ## License
 

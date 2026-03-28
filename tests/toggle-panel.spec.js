@@ -22,7 +22,7 @@ test.describe('Toggle Side Panel', () => {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
     expect(manifest.side_panel).toBeDefined();
-    expect(manifest.side_panel.default_path).toBe('sidepanel.html');
+    expect(manifest.side_panel.default_path).toBe(test.SIDE_PANEL_HTML);
     expect(manifest.action).toBeDefined();
   });
 
@@ -30,10 +30,10 @@ test.describe('Toggle Side Panel', () => {
 
   test('side panel registers a port with background on load', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
-    // panelPort is created on load in sidepanel.js
+    // panelPort is created on load in features/tab-browser/sidepanel.js
     const hasPort = await panel.evaluate(() => typeof panelPort !== 'undefined');
     expect(hasPort).toBe(true);
 
@@ -45,7 +45,7 @@ test.describe('Toggle Side Panel', () => {
 
   test('side panel calls window.close() when receiving close message via port', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Intercept window.close() with a flag
@@ -65,7 +65,7 @@ test.describe('Toggle Side Panel', () => {
 
   test('side panel ignores non-close messages on port', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     await panel.evaluate(() => {
@@ -91,7 +91,7 @@ test.describe('Toggle Side Panel', () => {
   test('clicking the banner sends toggle-side-panel message to background', async ({ context, extensionId }) => {
     // Ensure banner is visible
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
     await panel.locator('#banner-right').click();
 

@@ -16,7 +16,7 @@ test.describe('Search', () => {
     await page2.goto('https://example.org');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     const totalGroupsBefore = await panel.locator('.domain-group').count();
@@ -38,7 +38,7 @@ test.describe('Search', () => {
     await page1.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // Search by the page title (Example Domain is the title of example.com)
@@ -54,7 +54,7 @@ test.describe('Search', () => {
     await page1.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // Search by URL
@@ -71,7 +71,7 @@ test.describe('Search', () => {
     await page2.goto('https://example.org');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // Search for something only matching one domain
@@ -88,7 +88,7 @@ test.describe('Search', () => {
     await page1.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // Search and then clear
@@ -97,5 +97,55 @@ test.describe('Search', () => {
 
     await panel.locator('#search').fill('');
     await expect(panel.locator('.tab-list')).not.toHaveClass(/searching/);
+  });
+
+  test('search matches HTML head meta label', async ({ context, extensionId }) => {
+    const unique = `TM_META_SEARCH_${Date.now()}`;
+    const page1 = await context.newPage();
+    await page1.route('**/tm-meta-search-fixture.html', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="description" content="${unique}"></head><body>x</body></html>`,
+      });
+    });
+    await page1.goto('https://example.com/tm-meta-search-fixture.html');
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    await expect(panel.locator('.tab-page-label')).toContainText(unique, { timeout: 20000 });
+
+    await panel.locator('#search').fill(unique);
+    const matches = panel.locator('.tab-entry.match');
+    await expect(matches.first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('labels toggle hides page labels in the list', async ({ context, extensionId }) => {
+    const unique = `TM_META_TOGGLE_${Date.now()}`;
+    const page1 = await context.newPage();
+    await page1.route('**/tm-meta-toggle-fixture.html', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="description" content="${unique}"></head><body>x</body></html>`,
+      });
+    });
+    await page1.goto('https://example.com/tm-meta-toggle-fixture.html');
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    await expect(panel.locator('.tab-page-label')).toContainText(unique, { timeout: 20000 });
+
+    await panel.locator('#labels-toggle').click();
+    await expect(panel.locator('#labels-toggle')).toHaveAttribute('aria-pressed', 'false');
+    await expect(panel.locator('.tab-page-label')).toHaveCount(0);
+
+    await panel.locator('#labels-toggle').click();
+    await expect(panel.locator('#labels-toggle')).toHaveAttribute('aria-pressed', 'true');
+    await expect(panel.locator('.tab-page-label')).toContainText(unique);
   });
 });

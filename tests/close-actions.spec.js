@@ -7,7 +7,7 @@ test.describe('Close Actions', () => {
     await target.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     // Expand the example.com group
@@ -32,7 +32,7 @@ test.describe('Close Actions', () => {
     await target.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     const group = panel.locator('.domain-group', { has: panel.locator('.domain-name', { hasText: 'example.com' }) });
@@ -51,7 +51,7 @@ test.describe('Close Actions', () => {
     await target.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     const group = panel.locator('.domain-group', { has: panel.locator('.domain-name', { hasText: 'example.com' }) });
@@ -71,7 +71,7 @@ test.describe('Close Actions', () => {
     await target.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     const group = panel.locator('.domain-group', { has: panel.locator('.domain-name', { hasText: 'example.com' }) });
@@ -94,7 +94,7 @@ test.describe('Close Actions', () => {
     await target.goto('https://example.com');
 
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
     const group = panel.locator('.domain-group', { has: panel.locator('.domain-name', { hasText: 'example.com' }) });
