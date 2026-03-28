@@ -22,6 +22,22 @@ const test = base.extend({
         '--disable-default-apps',
       ],
     });
+    // Intercept external test URLs so tests don't require network access.
+    // Page-level routes (e.g. in search.spec.js) take precedence over these.
+    await context.route('https://example.com/**', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: '<!DOCTYPE html><html><head><title>Example Domain</title></head><body><h1>Example Domain</h1></body></html>',
+      });
+    });
+    await context.route('https://example.org/**', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: '<!DOCTYPE html><html><head><title>Example Org</title></head><body><h1>Example Org</h1></body></html>',
+      });
+    });
     await use(context);
     await context.close();
   },
