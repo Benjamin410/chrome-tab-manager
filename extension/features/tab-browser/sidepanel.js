@@ -280,6 +280,60 @@ function getDomain(url) {
   }
 }
 
+function isIpv4Host(hostname) {
+  if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return false;
+  const octets = hostname.split('.').map((o) => Number(o));
+  return octets.every((o) => Number.isInteger(o) && o >= 0 && o <= 255);
+}
+
+function isIpv6LikeHost(hostname) {
+  return hostname.includes(':');
+}
+
+function isLocalAddressHost(hostname) {
+  const host = (hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+  if (!host) return false;
+  if (host === 'localhost' || host === '::1') return true;
+
+  if (isIpv4Host(host)) {
+    const [a, b] = host.split('.').map((o) => Number(o));
+    if (a === 10 || a === 127) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    return false;
+  }
+
+  // Local IPv6 ranges: loopback (::1), link-local (fe80::/10), unique local (fc00::/7).
+  if (isIpv6LikeHost(host)) {
+    return host.startsWith('fe8') || host.startsWith('fe9') || host.startsWith('fea') ||
+      host.startsWith('feb') || host.startsWith('fc') || host.startsWith('fd');
+  }
+
+  return false;
+}
+
+function getDomainHeaderDisplayName(group) {
+  if (!isLocalAddressHost(group.domain)) return group.domain;
+  const titledTab = group.tabs.find((tab) => (tab.title || '').trim().length > 0);
+  return titledTab ? titledTab.title.trim() : group.domain;
+}
+
+function getLocalHostLabelFromTab(tab) {
+  try {
+    const host = new URL(tab.url || '').hostname;
+    return isLocalAddressHost(host) ? host : '';
+  } catch {
+    return '';
+  }
+}
+
+function getTabSecondaryLabel(tab) {
+  const pageLabel = showPageLabels && tab.pageLabel ? tab.pageLabel : '';
+  const localHost = getLocalHostLabelFromTab(tab);
+  if (pageLabel && localHost) return `${pageLabel} | ${localHost}`;
+  return pageLabel || localHost;
+}
+
 function getFaviconUrl(url) {
   try {
     const u = new URL(url);
@@ -495,7 +549,11 @@ function renderDomainGroup(group, windowId) {
 
   const nameSpan = document.createElement('span');
   nameSpan.className = 'domain-name';
-  nameSpan.textContent = group.domain;
+  const headerDomainName = getDomainHeaderDisplayName(group);
+  nameSpan.textContent = headerDomainName;
+  if (headerDomainName !== group.domain) {
+    nameSpan.title = group.domain;
+  }
 
   const headerText = document.createElement('div');
   headerText.className = 'domain-header-text';
@@ -601,8 +659,9 @@ function renderDomainGroup(group, windowId) {
   tabsContainer.className = 'domain-tabs';
 
   for (const tab of group.tabs) {
+    const tabSecondaryLabel = getTabSecondaryLabel(tab);
     const tabEl = document.createElement('div');
-    tabEl.className = 'tab-entry' + (showPageLabels && tab.pageLabel ? ' has-tab-label' : '');
+    tabEl.className = 'tab-entry' + (tabSecondaryLabel ? ' has-tab-label' : '');
     tabEl.dataset.tabId = tab.id;
     const pl = (tab.pageLabel || '').toLowerCase();
     tabEl.dataset.searchText = `${(tab.title || '').toLowerCase()} ${(tab.url || '').toLowerCase()} ${pl}`;
@@ -621,10 +680,10 @@ function renderDomainGroup(group, windowId) {
     titleSpan.textContent = tab.title || 'Untitled';
     titleWrap.appendChild(titleSpan);
 
-    if (showPageLabels && tab.pageLabel) {
+    if (tabSecondaryLabel) {
       const pageLabelEl = document.createElement('span');
       pageLabelEl.className = 'tab-page-label';
-      pageLabelEl.textContent = tab.pageLabel;
+      pageLabelEl.textContent = tabSecondaryLabel;
       titleWrap.appendChild(pageLabelEl);
     }
 
