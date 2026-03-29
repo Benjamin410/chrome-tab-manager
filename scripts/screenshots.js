@@ -46,6 +46,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function launch() {
   const headed = process.argv.includes('--headed');
+  const isCI = !!process.env.CI;
   const context = await chromium.launchPersistentContext('', {
     headless: false,
     args: [
@@ -54,6 +55,7 @@ async function launch() {
       '--no-first-run',
       '--disable-default-apps',
       ...(headed ? [] : ['--window-position=0,0']),
+      ...(isCI ? ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'] : []),
     ],
     viewport: null,
   });
@@ -69,10 +71,23 @@ async function openWebsites(context) {
   console.log('Opening websites...');
   const pages = [];
   for (const url of WEBSITES) {
-    const page = await context.newPage();
+    let page;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        page = await context.newPage();
+        break;
+      } catch (err) {
+        console.warn(`  Retry ${attempt + 1}/3 opening tab for ${url}: ${err.message}`);
+        await sleep(1000);
+      }
+    }
+    if (!page) {
+      console.warn(`  Skipping ${url} — could not open tab`);
+      continue;
+    }
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
     pages.push(page);
-    await sleep(500);
+    await sleep(800);
   }
   await sleep(2000);
   return pages;
