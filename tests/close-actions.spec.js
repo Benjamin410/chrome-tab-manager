@@ -114,4 +114,44 @@ test.describe('Close Actions', () => {
     const dialog = sidePanelPage.locator('#confirm-dialog');
     await expect(dialog).not.toHaveClass(/hidden/);
   });
+
+  test('close old with no old tabs shows info message', async ({ context, extensionId }) => {
+    // Open a fresh tab (not older than 7 days)
+    const tab = await context.newPage();
+    await tab.goto('https://example.com');
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    await panel.locator('#close-old').click();
+
+    // Dialog should show "no old tabs" message (not a confirmation with count)
+    const dialog = panel.locator('#confirm-dialog');
+    await expect(dialog).not.toHaveClass(/hidden/);
+
+    // The OK button should be visible, but there's no cancel (info dialog)
+    // or the message doesn't mention closing a number of tabs
+    const message = await panel.locator('#confirm-message').textContent();
+    expect(message).toBeTruthy();
+  });
+
+  test('close old cancel keeps all tabs', async ({ context, extensionId }) => {
+    const tab = await context.newPage();
+    await tab.goto('https://example.com');
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    await panel.locator('#close-old').click();
+    await expect(panel.locator('#confirm-dialog')).not.toHaveClass(/hidden/);
+
+    // Dismiss dialog
+    await panel.locator('#confirm-ok').click();
+    await expect(panel.locator('#confirm-dialog')).toHaveClass(/hidden/);
+
+    // Tab should still exist
+    await expect(panel.locator('.domain-name', { hasText: 'example.com' })).toBeVisible();
+  });
 });

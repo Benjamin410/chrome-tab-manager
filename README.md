@@ -139,6 +139,25 @@ npx playwright test --ui         # Interactive UI mode
 
 `npm test` does not run the suite; it prints a reminder to use `npm run test:e2e`.
 
+### Test Coverage (105 tests)
+
+| Test file | Tests | Feature |
+|-----------|------:|---------|
+| `tab-grouping.spec.js` | 17 | Tab Grouping (single/multi-window, color badge, edge cases) |
+| `sidepanel.spec.js` | 12 | Core UI (tab list, grouping, accordion, active tab, usage, history) |
+| `close-actions.spec.js` | 8 | Close Actions (hover, close all, close old, confirm/cancel) |
+| `window-management.spec.js` | 7 | Window Management (filter, grouping toggle, multi-window, persistence) |
+| `toggle-panel.spec.js` | 7 | Panel Toggle (shortcut, port, close, banner) |
+| `search.spec.js` | 7 | Search (filter, URL/title match, labels) |
+| `tab-usage.spec.js` | 7 | Tab Usage (dashboard, table, badges, polling, persistence) |
+| `service-worker.spec.js` | 6 | Service Worker (tab events, usage tracking, label storage) |
+| `i18n.spec.js` | 6 | Internationalization (DE/EN/ES/FR, persistence) |
+| `tab-history.spec.js` | 5 | Tab History (collapse, search, restore, closed today) |
+| `banner.spec.js` | 5 | Quick-open Banner (position, toggle, persistence) |
+| `sorting.spec.js` | 4 | Tab Sorting (sort modes, persistence, alphabetical order) |
+| `merge-duplicates.spec.js` | 4 | Merge Duplicates (detect, confirm, cancel, close extras) |
+| `theme.spec.js` | 4 | Theme (toggle, persistence, CSS variables) |
+
 ## License
 
 ISC
