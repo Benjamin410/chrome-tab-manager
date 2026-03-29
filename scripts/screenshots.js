@@ -221,14 +221,17 @@ async function main() {
   console.log('Launching Chrome with extension...');
   const { context, extensionId } = await launch();
 
-  // Close default blank tab
-  for (const p of context.pages()) {
-    if (p.url() === 'about:blank' || p.url() === 'chrome://newtab/') {
-      await p.close().catch(() => {});
-    }
-  }
+  // Remember blank tabs to close later (closing them now would kill the browser)
+  const blankPages = context.pages().filter(
+    p => p.url() === 'about:blank' || p.url() === 'chrome://newtab/'
+  );
 
   const webPages = await openWebsites(context);
+
+  // Now that we have other tabs open, close the initial blank tabs
+  for (const p of blankPages) {
+    await p.close().catch(() => {});
+  }
   console.log('Opening side panel...');
   const panel = await openSidePanel(context, extensionId);
   await expandFirstDomains(panel, 4);
