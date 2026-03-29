@@ -5,7 +5,7 @@ test.describe('Quick-open Banner', () => {
   test('banner appears on page with right position by default', async ({ context, extensionId }) => {
     // Clear any stored banner settings first
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Set banner to right (default)
@@ -25,7 +25,7 @@ test.describe('Quick-open Banner', () => {
 
   test('banner position changes to left', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Change banner to left
@@ -42,7 +42,7 @@ test.describe('Quick-open Banner', () => {
 
   test('banner disappears when turned off', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Turn banner off
@@ -79,7 +79,7 @@ test.describe('Quick-open Banner', () => {
 
   test('banner setting persists after panel reload', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Set to left

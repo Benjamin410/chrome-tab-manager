@@ -1,0 +1,458 @@
+const translations = {
+  en: {
+    searchPlaceholder: 'Search tabs...',
+    closeOld: 'Close old (>7d)',
+    allWindows: 'All windows',
+    windowLabel: 'Window',
+    windowGrouping: 'Windows',
+    windowGroupingOn: 'Window grouping on',
+    windowGroupingOff: 'Window grouping off',
+    themeToggle: 'Toggle theme',
+    tabsInWindows: (tabs, windows) =>
+      `${tabs} tabs in ${windows} ${windows === 1 ? 'window' : 'windows'}`,
+    windowHeader: (index, count) => `Window ${index} — ${count} tabs`,
+    noTabs: 'No tabs open',
+    closeAll: 'Close all',
+    closeTab: 'Close tab',
+    confirmCloseAllDomain: (count, domain) =>
+      `Close ${count} tabs from ${domain}?`,
+    confirmCloseOld: (count) =>
+      `Close ${count} tabs not visited in over 7 days?`,
+    noOldTabs: 'No tabs found older than 7 days.',
+    cancel: 'Cancel',
+    close: 'Close',
+    now: 'now',
+    tabSortToolbarAria: 'Tab list actions',
+    tabSortSelectAria: 'Tab order',
+    sortTitleAsc: 'A–Z',
+    sortTitleAscTitle: 'Order sites A–Z; tabs by title A–Z',
+    sortTitleDesc: 'Z–A',
+    sortTitleDescTitle: 'Order sites Z–A; tabs by title Z–A',
+    sortTimeAsc: 'Time ↑',
+    sortTimeAscTitle: 'Oldest activity first; tabs oldest first within each site',
+    sortTimeDesc: 'Time ↓',
+    sortTimeDescTitle: 'Newest activity first; tabs newest first within each site',
+    mergeSameSitesTitle: 'Merge duplicate sites — keep one tab per site, close the rest',
+    confirmMergeDuplicates: (count) =>
+      `Close ${count} duplicate tab${count === 1 ? '' : 's'} (one tab kept per site)?`,
+    noDuplicatesToMerge: 'No duplicate sites to merge.',
+    bannerEdgePositionGroup: 'Edge banner position',
+    bannerPositionLeft: 'Banner on the left edge',
+    bannerPositionRight: 'Banner on the right edge',
+    bannerPositionOff: 'Hide edge banner',
+    groupTabs: 'Group tabs',
+    ungroupTabs: 'Ungroup tabs',
+    pageLabels: 'Labels',
+    pageLabelsOn: 'Page labels on',
+    pageLabelsOff: 'Page labels off',
+    pageLabelsToggleAria: 'Toggle page head labels',
+    featureTabHistory: 'Tab history',
+    featureTabUsage: 'Tab usage',
+    tabHistoryFootnote:
+      'Recently closed tabs and windows from Chrome. Click a row to reopen.',
+    tabHistoryOpenLastClosed: 'Open last closed',
+    tabHistoryClosedTodayCount: (n) => `Closed today · ${n}`,
+    tabHistoryHeaderToolbar: 'Tab history shortcuts',
+    tabHistoryEmpty: 'No recently closed tabs or windows yet.',
+    tabHistoryWindowTabs: (n) => `Closed window · ${n} tabs`,
+    tabHistoryRestoreTitle: 'Reopen this tab or window',
+    tabHistoryUnavailable: 'Could not load recently closed items.',
+    tabHistorySearchPlaceholder: 'Search recently closed…',
+    tabHistoryNoSearchResults: 'No matches for your search.',
+    tabHistoryThisDevice: 'This device',
+    tabHistoryOs: {
+      mac: 'macOS',
+      win: 'Windows',
+      linux: 'Linux',
+      cros: 'Chrome OS',
+      android: 'Android',
+      openbsd: 'OpenBSD',
+    },
+    tabUsageFootnote:
+      '"Tracked since" is when this extension first recorded the tab (not necessarily when it was opened in the browser).',
+    tabUsageTabs: 'Tabs',
+    tabUsageWindows: 'Windows',
+    tabUsageDiscarded: 'Sleeping',
+    tabUsageLoading: 'Loading',
+    tabUsageIncognito: 'Private',
+    tabUsageMuted: 'Muted',
+    tabUsageSubsectionTabs: 'All tabs',
+    tabUsageColumnTitle: 'Title',
+    tabUsageColumnHost: 'Site',
+    tabUsageColumnWindow: 'Win',
+    tabUsageColumnIndex: '#',
+    tabUsageColumnStatus: 'Status',
+    tabUsageColumnLastActive: 'Last active',
+    tabUsageColumnTracked: 'Tracked since',
+    tabUsageStatusComplete: 'Complete',
+    tabUsageStatusLoading: 'Loading',
+    tabUsageStatusUnloaded: 'Unloaded',
+    tabUsageMetricUnavailable: '—',
+    tabUsageNoTabs: 'No tabs',
+    tabUsageBadgeActive: 'Active',
+    tabUsageBadgePinned: 'Pinned',
+    tabUsageBadgeDiscarded: 'Sleeping',
+    tabUsageBadgeAudible: 'Playing',
+    tabUsageBadgeMuted: 'Muted',
+    tabUsageBadgeIncognito: 'Private',
+    tabUsageBadgeFrozen: 'Frozen',
+  },
+  de: {
+    searchPlaceholder: 'Tabs suchen...',
+    closeOld: 'Alte schließen (>7d)',
+    allWindows: 'Alle Fenster',
+    windowLabel: 'Fenster',
+    windowGrouping: 'Fenster',
+    windowGroupingOn: 'Fenster-Gruppierung an',
+    windowGroupingOff: 'Fenster-Gruppierung aus',
+    themeToggle: 'Theme wechseln',
+    tabsInWindows: (tabs, windows) =>
+      `${tabs} Tabs in ${windows} ${windows === 1 ? 'Fenster' : 'Fenstern'}`,
+    windowHeader: (index, count) => `Fenster ${index} — ${count} Tabs`,
+    noTabs: 'Keine Tabs offen',
+    closeAll: 'Alle schließen',
+    closeTab: 'Tab schließen',
+    confirmCloseAllDomain: (count, domain) =>
+      `${count} Tabs von ${domain} schließen?`,
+    confirmCloseOld: (count) =>
+      `${count} Tabs schließen, die seit über 7 Tagen nicht besucht wurden?`,
+    noOldTabs: 'Keine Tabs gefunden, die älter als 7 Tage sind.',
+    cancel: 'Abbrechen',
+    close: 'Schließen',
+    now: 'jetzt',
+    tabSortToolbarAria: 'Tab-Listenaktionen',
+    tabSortSelectAria: 'Reihenfolge der Tabs',
+    sortTitleAsc: 'A–Z',
+    sortTitleAscTitle: 'Seiten A–Z; Tabs nach Titel A–Z',
+    sortTitleDesc: 'Z–A',
+    sortTitleDescTitle: 'Seiten Z–A; Tabs nach Titel Z–A',
+    sortTimeAsc: 'Zeit ↑',
+    sortTimeAscTitle: 'Älteste Aktivität zuerst; innerhalb der Seite älteste Tabs zuerst',
+    sortTimeDesc: 'Zeit ↓',
+    sortTimeDescTitle: 'Neueste Aktivität zuerst; innerhalb der Seite neueste Tabs zuerst',
+    mergeSameSitesTitle: 'Gleiche Seiten zusammenführen — pro Seite einen Tab behalten, andere schließen',
+    confirmMergeDuplicates: (count) =>
+      `${count} doppelte Tab${count === 1 ? '' : 's'} schließen (pro Seite bleibt einer)?`,
+    noDuplicatesToMerge: 'Keine doppelten Seiten zum Zusammenführen.',
+    bannerEdgePositionGroup: 'Position des Rand-Banners',
+    bannerPositionLeft: 'Banner am linken Rand',
+    bannerPositionRight: 'Banner am rechten Rand',
+    bannerPositionOff: 'Rand-Banner ausblenden',
+    groupTabs: 'Tabs gruppieren',
+    ungroupTabs: 'Gruppierung aufheben',
+    pageLabels: 'Labels',
+    pageLabelsOn: 'Seiten-Labels ein',
+    pageLabelsOff: 'Seiten-Labels aus',
+    pageLabelsToggleAria: 'Seiten-Labels aus dem HTML-Kopf ein- oder ausblenden',
+    featureTabHistory: 'Tab-Verlauf',
+    featureTabUsage: 'Tab-Nutzung',
+    tabHistoryFootnote:
+      'Kürzlich geschlossene Tabs und Fenster von Chrome. Zum Wiederherstellen klicken.',
+    tabHistoryOpenLastClosed: 'Letztes öffnen',
+    tabHistoryClosedTodayCount: (n) => `Heute geschlossen · ${n}`,
+    tabHistoryHeaderToolbar: 'Tab-Verlauf Schnellaktionen',
+    tabHistoryEmpty: 'Noch keine kürzlich geschlossenen Tabs oder Fenster.',
+    tabHistoryWindowTabs: (n) => `Geschlossenes Fenster · ${n} Tabs`,
+    tabHistoryRestoreTitle: 'Tab oder Fenster wiederherstellen',
+    tabHistoryUnavailable: 'Kürzlich geschlossene Einträge konnten nicht geladen werden.',
+    tabHistorySearchPlaceholder: 'Kürzlich Geschlossenes durchsuchen…',
+    tabHistoryNoSearchResults: 'Keine Treffer für Ihre Suche.',
+    tabHistoryThisDevice: 'Dieses Gerät',
+    tabHistoryOs: {
+      mac: 'macOS',
+      win: 'Windows',
+      linux: 'Linux',
+      cros: 'Chrome OS',
+      android: 'Android',
+      openbsd: 'OpenBSD',
+    },
+    tabUsageFootnote:
+      '„Getrackt seit“ ist der Zeitpunkt, zu dem die Erweiterung den Tab erstmals erfasst hat (nicht unbedingt die Browser-Öffnung).',
+    tabUsageTabs: 'Tabs',
+    tabUsageWindows: 'Fenster',
+    tabUsageDiscarded: 'Schlafend',
+    tabUsageLoading: 'Lädt',
+    tabUsageIncognito: 'Privat',
+    tabUsageMuted: 'Stumm',
+    tabUsageSubsectionTabs: 'Alle Tabs',
+    tabUsageColumnTitle: 'Titel',
+    tabUsageColumnHost: 'Seite',
+    tabUsageColumnWindow: 'Fen.',
+    tabUsageColumnIndex: '#',
+    tabUsageColumnStatus: 'Status',
+    tabUsageColumnLastActive: 'Zuletzt aktiv',
+    tabUsageColumnTracked: 'Getrackt seit',
+    tabUsageStatusComplete: 'Fertig',
+    tabUsageStatusLoading: 'Lädt',
+    tabUsageStatusUnloaded: 'Entladen',
+    tabUsageMetricUnavailable: '—',
+    tabUsageNoTabs: 'Keine Tabs',
+    tabUsageBadgeActive: 'Aktiv',
+    tabUsageBadgePinned: 'Angeheftet',
+    tabUsageBadgeDiscarded: 'Schlafend',
+    tabUsageBadgeAudible: 'Ton',
+    tabUsageBadgeMuted: 'Stumm',
+    tabUsageBadgeIncognito: 'Privat',
+    tabUsageBadgeFrozen: 'Eingefroren',
+  },
+  fr: {
+    searchPlaceholder: 'Rechercher des onglets...',
+    closeOld: 'Fermer anciens (>7j)',
+    allWindows: 'Toutes les fenêtres',
+    windowLabel: 'Fenêtre',
+    windowGrouping: 'Fenêtres',
+    windowGroupingOn: 'Groupement par fenêtre activé',
+    windowGroupingOff: 'Groupement par fenêtre désactivé',
+    themeToggle: 'Changer le thème',
+    tabsInWindows: (tabs, windows) =>
+      `${tabs} onglets dans ${windows} ${windows === 1 ? 'fenêtre' : 'fenêtres'}`,
+    windowHeader: (index, count) => `Fenêtre ${index} — ${count} onglets`,
+    noTabs: 'Aucun onglet ouvert',
+    closeAll: 'Tout fermer',
+    closeTab: 'Fermer l\'onglet',
+    confirmCloseAllDomain: (count, domain) =>
+      `Fermer ${count} onglets de ${domain} ?`,
+    confirmCloseOld: (count) =>
+      `Fermer ${count} onglets non visités depuis plus de 7 jours ?`,
+    noOldTabs: 'Aucun onglet de plus de 7 jours trouvé.',
+    cancel: 'Annuler',
+    close: 'Fermer',
+    now: 'maintenant',
+    tabSortToolbarAria: 'Actions de la liste d’onglets',
+    tabSortSelectAria: 'Ordre des onglets',
+    sortTitleAsc: 'A–Z',
+    sortTitleAscTitle: 'Sites par ordre A–Z ; onglets par titre A–Z',
+    sortTitleDesc: 'Z–A',
+    sortTitleDescTitle: 'Sites par ordre Z–A ; onglets par titre Z–A',
+    sortTimeAsc: 'Temps ↑',
+    sortTimeAscTitle: 'Activité la plus ancienne d’abord ; onglets du plus ancien au plus récent par site',
+    sortTimeDesc: 'Temps ↓',
+    sortTimeDescTitle: 'Activité la plus récente d’abord ; onglets du plus récent au plus ancien par site',
+    mergeSameSitesTitle: 'Fusionner les sites en double — un onglet par site, fermer les autres',
+    confirmMergeDuplicates: (count) =>
+      `Fermer ${count} onglet${count === 1 ? '' : 's'} en double (un conservé par site) ?`,
+    noDuplicatesToMerge: 'Aucun site en double à fusionner.',
+    bannerEdgePositionGroup: 'Position du bandeau latéral',
+    bannerPositionLeft: 'Bandeau à gauche',
+    bannerPositionRight: 'Bandeau à droite',
+    bannerPositionOff: 'Masquer le bandeau',
+    groupTabs: 'Grouper les onglets',
+    ungroupTabs: 'Dégrouper les onglets',
+    pageLabels: 'Libellés',
+    pageLabelsOn: 'Libellés de page activés',
+    pageLabelsOff: 'Libellés de page désactivés',
+    pageLabelsToggleAria: 'Afficher ou masquer les libellés issus de l’en-tête HTML',
+    featureTabHistory: 'Historique des onglets',
+    featureTabUsage: 'Utilisation des onglets',
+    tabHistoryFootnote:
+      'Onglets et fenêtres récemment fermés (Chrome). Cliquez une ligne pour rouvrir.',
+    tabHistoryOpenLastClosed: 'Rouvrir le dernier fermé',
+    tabHistoryClosedTodayCount: (n) => `Fermés aujourd’hui · ${n}`,
+    tabHistoryHeaderToolbar: 'Raccourcis historique des onglets',
+    tabHistoryEmpty: 'Aucun onglet ou fenêtre récemment fermé.',
+    tabHistoryWindowTabs: (n) => `Fenêtre fermée · ${n} onglets`,
+    tabHistoryRestoreTitle: 'Rouvrir cet onglet ou cette fenêtre',
+    tabHistoryUnavailable: 'Impossible de charger les éléments récemment fermés.',
+    tabHistorySearchPlaceholder: 'Rechercher parmi les fermés récents…',
+    tabHistoryNoSearchResults: 'Aucun résultat pour votre recherche.',
+    tabHistoryThisDevice: 'Cet appareil',
+    tabHistoryOs: {
+      mac: 'macOS',
+      win: 'Windows',
+      linux: 'Linux',
+      cros: 'Chrome OS',
+      android: 'Android',
+      openbsd: 'OpenBSD',
+    },
+    tabUsageFootnote:
+      '« Suivi depuis » correspond à la première fois que l’extension a enregistré l’onglet (pas forcément son ouverture dans le navigateur).',
+    tabUsageTabs: 'Onglets',
+    tabUsageWindows: 'Fenêtres',
+    tabUsageDiscarded: 'En veille',
+    tabUsageLoading: 'Chargement',
+    tabUsageIncognito: 'Privé',
+    tabUsageMuted: 'Muet',
+    tabUsageSubsectionTabs: 'Tous les onglets',
+    tabUsageColumnTitle: 'Titre',
+    tabUsageColumnHost: 'Site',
+    tabUsageColumnWindow: 'Fen.',
+    tabUsageColumnIndex: '#',
+    tabUsageColumnStatus: 'État',
+    tabUsageColumnLastActive: 'Dernière activité',
+    tabUsageColumnTracked: 'Suivi depuis',
+    tabUsageStatusComplete: 'Terminé',
+    tabUsageStatusLoading: 'Chargement',
+    tabUsageStatusUnloaded: 'Déchargé',
+    tabUsageMetricUnavailable: '—',
+    tabUsageNoTabs: 'Aucun onglet',
+    tabUsageBadgeActive: 'Actif',
+    tabUsageBadgePinned: 'Épinglé',
+    tabUsageBadgeDiscarded: 'En veille',
+    tabUsageBadgeAudible: 'Son',
+    tabUsageBadgeMuted: 'Muet',
+    tabUsageBadgeIncognito: 'Privé',
+    tabUsageBadgeFrozen: 'Gelé',
+  },
+  es: {
+    searchPlaceholder: 'Buscar pestañas...',
+    closeOld: 'Cerrar antiguas (>7d)',
+    allWindows: 'Todas las ventanas',
+    windowLabel: 'Ventana',
+    windowGrouping: 'Ventanas',
+    windowGroupingOn: 'Agrupación por ventana activada',
+    windowGroupingOff: 'Agrupación por ventana desactivada',
+    themeToggle: 'Cambiar tema',
+    tabsInWindows: (tabs, windows) =>
+      `${tabs} pestañas en ${windows} ${windows === 1 ? 'ventana' : 'ventanas'}`,
+    windowHeader: (index, count) => `Ventana ${index} — ${count} pestañas`,
+    noTabs: 'No hay pestañas abiertas',
+    closeAll: 'Cerrar todas',
+    closeTab: 'Cerrar pestaña',
+    confirmCloseAllDomain: (count, domain) =>
+      `¿Cerrar ${count} pestañas de ${domain}?`,
+    confirmCloseOld: (count) =>
+      `¿Cerrar ${count} pestañas no visitadas en más de 7 días?`,
+    noOldTabs: 'No se encontraron pestañas de más de 7 días.',
+    cancel: 'Cancelar',
+    close: 'Cerrar',
+    now: 'ahora',
+    tabSortToolbarAria: 'Acciones de la lista de pestañas',
+    tabSortSelectAria: 'Orden de las pestañas',
+    sortTitleAsc: 'A–Z',
+    sortTitleAscTitle: 'Sitios de la A a la Z; pestañas por título A–Z',
+    sortTitleDesc: 'Z–A',
+    sortTitleDescTitle: 'Sitios de la Z a la A; pestañas por título Z–A',
+    sortTimeAsc: 'Tiempo ↑',
+    sortTimeAscTitle: 'Actividad más antigua primero; pestañas más antiguas primero en cada sitio',
+    sortTimeDesc: 'Tiempo ↓',
+    sortTimeDescTitle: 'Actividad más reciente primero; pestañas más recientes primero en cada sitio',
+    mergeSameSitesTitle: 'Unir sitios duplicados — una pestaña por sitio, cerrar el resto',
+    confirmMergeDuplicates: (count) =>
+      `¿Cerrar ${count} pestaña${count === 1 ? '' : 's'} duplicada${count === 1 ? '' : 's'} (se mantiene una por sitio)?`,
+    noDuplicatesToMerge: 'No hay sitios duplicados para unir.',
+    bannerEdgePositionGroup: 'Posición del banner lateral',
+    bannerPositionLeft: 'Banner a la izquierda',
+    bannerPositionRight: 'Banner a la derecha',
+    bannerPositionOff: 'Ocultar banner lateral',
+    groupTabs: 'Agrupar pestañas',
+    ungroupTabs: 'Desagrupar pestañas',
+    pageLabels: 'Etiquetas',
+    pageLabelsOn: 'Etiquetas de página activadas',
+    pageLabelsOff: 'Etiquetas de página desactivadas',
+    pageLabelsToggleAria: 'Mostrar u ocultar etiquetas del encabezado HTML',
+    featureTabHistory: 'Historial de pestañas',
+    featureTabUsage: 'Uso de pestañas',
+    tabHistoryFootnote:
+      'Pestañas y ventanas cerradas recientemente (Chrome). Pulsa una fila para reabrir.',
+    tabHistoryOpenLastClosed: 'Abrir último cerrado',
+    tabHistoryClosedTodayCount: (n) => `Cerrados hoy · ${n}`,
+    tabHistoryHeaderToolbar: 'Atajos del historial de pestañas',
+    tabHistoryEmpty: 'Aún no hay pestañas ni ventanas cerradas recientemente.',
+    tabHistoryWindowTabs: (n) => `Ventana cerrada · ${n} pestañas`,
+    tabHistoryRestoreTitle: 'Reabrir esta pestaña o ventana',
+    tabHistoryUnavailable: 'No se pudieron cargar los elementos cerrados recientemente.',
+    tabHistorySearchPlaceholder: 'Buscar entre cerrados recientes…',
+    tabHistoryNoSearchResults: 'Ningún resultado para tu búsqueda.',
+    tabHistoryThisDevice: 'Este dispositivo',
+    tabHistoryOs: {
+      mac: 'macOS',
+      win: 'Windows',
+      linux: 'Linux',
+      cros: 'Chrome OS',
+      android: 'Android',
+      openbsd: 'OpenBSD',
+    },
+    tabUsageFootnote:
+      '« Seguimiento desde » es cuando la extensión registró la pestaña por primera vez (no necesariamente al abrirla en el navegador).',
+    tabUsageTabs: 'Pestañas',
+    tabUsageWindows: 'Ventanas',
+    tabUsageDiscarded: 'En reposo',
+    tabUsageLoading: 'Cargando',
+    tabUsageIncognito: 'Privado',
+    tabUsageMuted: 'Silenciado',
+    tabUsageSubsectionTabs: 'Todas las pestañas',
+    tabUsageColumnTitle: 'Título',
+    tabUsageColumnHost: 'Sitio',
+    tabUsageColumnWindow: 'Vent.',
+    tabUsageColumnIndex: '#',
+    tabUsageColumnStatus: 'Estado',
+    tabUsageColumnLastActive: 'Última actividad',
+    tabUsageColumnTracked: 'Seguimiento desde',
+    tabUsageStatusComplete: 'Listo',
+    tabUsageStatusLoading: 'Cargando',
+    tabUsageStatusUnloaded: 'Descargado',
+    tabUsageMetricUnavailable: '—',
+    tabUsageNoTabs: 'Sin pestañas',
+    tabUsageBadgeActive: 'Activa',
+    tabUsageBadgePinned: 'Fijada',
+    tabUsageBadgeDiscarded: 'En reposo',
+    tabUsageBadgeAudible: 'Audio',
+    tabUsageBadgeMuted: 'Silenciado',
+    tabUsageBadgeIncognito: 'Privado',
+    tabUsageBadgeFrozen: 'Congelada',
+  },
+};
+
+function detectLanguage() {
+  const lang = navigator.language.split('-')[0];
+  return translations[lang] ? lang : 'en';
+}
+
+let currentLang = 'en';
+let t = translations.en;
+
+async function initI18n() {
+  const { langPreference } = await chrome.storage.local.get('langPreference');
+  currentLang = langPreference || detectLanguage();
+  t = translations[currentLang] || translations.en;
+}
+
+async function setLanguage(lang) {
+  currentLang = lang;
+  t = translations[lang] || translations.en;
+  await chrome.storage.local.set({ langPreference: lang });
+}
+
+function getAvailableLanguages() {
+  return [
+    { code: 'en', label: 'English' },
+    { code: 'de', label: 'Deutsch' },
+    { code: 'fr', label: 'Français' },
+    { code: 'es', label: 'Español' },
+  ];
+}
+
+/**
+ * Formats a timestamp as a short relative age (uses current i18n `t.now`).
+ * @param {number | undefined} timestamp
+ * @returns {string}
+ */
+function formatRelativeTime(timestamp) {
+  if (!timestamp) return '';
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return t.now;
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
+
+/**
+ * Formats when a session was closed (absolute date/time in the current UI language).
+ * @param {number | undefined} timestampMs
+ * @returns {string}
+ */
+function formatTabHistoryClosedDate(timestampMs) {
+  if (!timestampMs) return '';
+  const locale = currentLang === 'en' ? 'en-US' : currentLang;
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(timestampMs));
+  } catch {
+    return new Date(timestampMs).toLocaleString();
+  }
+}

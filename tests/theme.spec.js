@@ -26,7 +26,7 @@ test.describe('Theme', () => {
 
   test('theme persists after reload', async ({ context, extensionId }) => {
     const panel = await context.newPage();
-    await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group, .empty-state');
 
     // Set to dark theme

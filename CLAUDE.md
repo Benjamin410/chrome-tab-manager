@@ -10,20 +10,44 @@ A Chrome extension that provides a sidebar for managing browser tabs with search
 
 ## Project Structure
 
-- `extension/` — Chrome extension source (manifest, background, sidepanel, i18n, icons)
+- `extension/` — Chrome extension source (manifest, icons, service worker entry)
+- `extension/core/` — Shared code (i18n, background implementation, JSDoc models)
+- `extension/features/tab-browser/` — Side panel tab list, search, grouping, edge banner content script
+- `extension/features/tab-history/` — Recently closed tabs/windows (`chrome.sessions`)
+- `extension/features/tab-usage/` — Tab usage panel (counts + per-tab stats)
 - `tests/` — Playwright E2E test specs
 - `tests/fixtures.js` — Custom fixture that launches Chrome with the extension loaded
 
 ## Running Tests
 
+`npm test` only prints a reminder — it does **not** run Playwright (avoids slow browser runs unless you opt in).
+
 ```bash
 npm install
-npm test                          # run all E2E tests
+npm run test:e2e                  # run all E2E tests (Playwright)
 npx playwright test --headed      # run with visible browser
 npx playwright test tests/foo.spec.js  # run a single spec
 ```
 
 Tests require a real (non-headless) Chromium instance because Chrome extensions don't work in headless mode.
+
+## Local development (hot reload)
+
+```bash
+npm install
+npm run dev
+```
+
+This runs a **browser** (unpacked `extension/`, remote debugging on port 9222) and the **file watcher** together. **Ctrl+C** stops both. Log lines are prefixed with `browser` or `watch` via `concurrently`.
+
+- **Default:** Google Chrome (`chrome-launcher` auto-detection, or `CHROME_PATH`).
+- **Microsoft Edge:** `npm run dev:edge` or `BROWSER=edge npm run dev` (Unix). On Windows, `dev:edge` uses `cross-env`. Override the executable with `EDGE_PATH` if needed.
+
+To run only the watcher (e.g. you already started the browser with `--remote-debugging-port` yourself): `npm run dev:watch`. To run only the browser launcher: `npm run browser:dev` or `npm run dev:edge` (Edge only), or `npm run chrome:dev` (alias for `browser:dev`).
+
+If you prefer your normal profile, close other browser windows, start Chrome or Edge manually with `--remote-debugging-port=9222`, load the unpacked extension, then run `npm run dev:watch`. Set `CHROME_DEBUG_PORT` if you use another port.
+
+**Fallback:** the service worker polls the package (`core/background/dev-hot-reload.js`) and calls `chrome.runtime.reload()` when files change (no CDP required, can be slower).
 
 ## Pull Request Guidelines
 
@@ -44,7 +68,7 @@ Every PR should follow this structure:
 - No new permissions added without justification
 - i18n strings added for all 4 languages (de, en, es, fr) if UI text changed
 - E2E tests added/updated for new features or behavior changes
-- Existing tests still pass (`npm test`)
+- Existing tests still pass (`npm run test:e2e`)
 - README updated if user-facing behavior changed
 
 ## Release Process
@@ -74,7 +98,7 @@ The extension is published to the Chrome Web Store (unlisted) via GitHub Actions
 ### Build script
 
 ```bash
-./scripts/build.sh    # creates dist/tab-manager-vX.Y.Z.zip for manual upload
+npm run build    # creates dist/tab-manager-vX.Y.Z.zip (scripts/build.js; optional: bash scripts/build.sh on Unix)
 ```
 
 ### Required GitHub Secrets
