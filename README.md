@@ -139,6 +139,20 @@ npx playwright test --ui         # Interactive UI mode
 
 `npm test` does not run the suite; it prints a reminder to use `npm run test:e2e`.
 
+### Test Coverage (75 tests)
+
+| Test file | Tests | Feature |
+|-----------|------:|---------|
+| `tab-grouping.spec.js` | 17 | Tab Grouping (single/multi-window, color badge, edge cases) |
+| `sidepanel.spec.js` | 12 | Core UI (tab list, grouping, accordion, active tab, usage, history) |
+| `toggle-panel.spec.js` | 7 | Panel Toggle (shortcut, port, close, banner) |
+| `search.spec.js` | 7 | Search (filter, URL/title match, labels) |
+| `close-actions.spec.js` | 6 | Close Actions (hover, close all, confirm/cancel) |
+| `i18n.spec.js` | 6 | Internationalization (DE/EN/ES/FR, persistence) |
+| `window-management.spec.js` | 5 | Window Management (filter, grouping toggle, persistence) |
+| `banner.spec.js` | 5 | Quick-open Banner (position, toggle, persistence) |
+| `theme.spec.js` | 4 | Theme (toggle, persistence, CSS variables) |
+
 ## License
 
 ISC
