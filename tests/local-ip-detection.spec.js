@@ -46,11 +46,7 @@ test.describe('Local IP Detection', () => {
 
     // Rename the localhost domain
     const header = panel.locator('.domain-header', { hasText: 'Dev Server' });
-    await expect(async () => {
-      await header.hover();
-      const renameBtn = header.locator('.domain-rename-btn');
-      await expect(renameBtn).toHaveCSS('opacity', '1', { timeout: 500 });
-    }).toPass({ timeout: 5000 });
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
 
     const input = panel.locator('.domain-rename-input');

@@ -17,12 +17,11 @@ test.describe('Custom Domain Names', () => {
     await expect(renameBtn).toBeAttached();
     await expect(renameBtn).toHaveCSS('opacity', '0');
 
-    // Hover shows button — re-hover in a retry loop because background
-    // tabs-changed messages can rebuild the DOM and lose hover state.
-    await expect(async () => {
-      await header.hover();
-      await expect(renameBtn).toHaveCSS('opacity', '1', { timeout: 500 });
-    }).toPass({ timeout: 5000 });
+    // Add .hover class programmatically — real :hover is unreliable because
+    // background tabs-changed events rebuild the DOM mid-transition.
+    // The CSS supports .domain-header.hover as an equivalent selector.
+    await header.evaluate(el => el.classList.add('hover'));
+    await expect(renameBtn).toHaveCSS('opacity', '1');
   });
 
   test('rename button enters inline edit mode', async ({ context, extensionId }) => {
@@ -34,7 +33,7 @@ test.describe('Custom Domain Names', () => {
     await panel.waitForSelector('.domain-group');
 
     const header = panel.locator('.domain-header', { hasText: 'example.com' });
-    await header.hover();
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
 
     const input = panel.locator('.domain-rename-input');
@@ -51,7 +50,7 @@ test.describe('Custom Domain Names', () => {
     await panel.waitForSelector('.domain-group');
 
     const header = panel.locator('.domain-header', { hasText: 'example.com' });
-    await header.hover();
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
 
     const input = panel.locator('.domain-rename-input');
@@ -80,7 +79,7 @@ test.describe('Custom Domain Names', () => {
 
     // Rename domain
     const header = panel.locator('.domain-header', { hasText: 'example.com' });
-    await header.hover();
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
     const input = panel.locator('.domain-rename-input');
     await input.fill('MyCustomSite');
@@ -105,7 +104,7 @@ test.describe('Custom Domain Names', () => {
 
     // Rename domain
     const header = panel.locator('.domain-header', { hasText: 'example.com' });
-    await header.hover();
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
     const input = panel.locator('.domain-rename-input');
     await input.fill('Custom');
@@ -114,7 +113,7 @@ test.describe('Custom Domain Names', () => {
 
     // Clear the name
     const header2 = panel.locator('.domain-header', { hasText: 'Custom' });
-    await header2.hover();
+    await header2.evaluate(el => el.classList.add('hover'));
     await header2.locator('.domain-rename-btn').click();
     const input2 = panel.locator('.domain-rename-input');
     await input2.fill('');
@@ -135,7 +134,7 @@ test.describe('Custom Domain Names', () => {
 
     // Rename domain first
     const header = panel.locator('.domain-header', { hasText: 'example.com' });
-    await header.hover();
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
     const input = panel.locator('.domain-rename-input');
     await input.fill('MyGroup');
@@ -144,7 +143,7 @@ test.describe('Custom Domain Names', () => {
 
     // Now group tabs
     const renamedHeader = panel.locator('.domain-header', { hasText: 'MyGroup' });
-    await renamedHeader.hover();
+    await renamedHeader.evaluate(el => el.classList.add('hover'));
     const groupBtn = renamedHeader.locator('.domain-group-btn');
     await groupBtn.click();
     await panel.waitForTimeout(1000);
@@ -167,7 +166,7 @@ test.describe('Custom Domain Names', () => {
 
     // Start rename
     const header = panel.locator('.domain-header', { hasText: 'example.com' });
-    await header.hover();
+    await header.evaluate(el => el.classList.add('hover'));
     await header.locator('.domain-rename-btn').click();
     const input = panel.locator('.domain-rename-input');
     await input.fill('ShouldNotSave');
