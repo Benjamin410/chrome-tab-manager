@@ -918,6 +918,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
   loadTabs();
 });
 
+// Refresh tab data when panel becomes visible (e.g. window switch, panel reopen)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && !groupOperationInProgress) {
+    loadTabs();
+  }
+});
+
 // Initialize
 async function init() {
   await initI18n();
