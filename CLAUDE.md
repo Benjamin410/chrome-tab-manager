@@ -71,6 +71,18 @@ Every PR should follow this structure:
 - Existing tests still pass (`npm run test:e2e`)
 - README updated if user-facing behavior changed
 
+## README Quality Rules
+
+The README must stay in sync with the codebase. When making changes, verify:
+
+- **Features list** — Every user-facing feature must be listed. Add new features, remove deprecated ones.
+- **Usage table** — Every user action/interaction must have an entry.
+- **Project structure** — File tree must match actual paths. Update when files are added, moved, or removed.
+- **Test coverage table** — Update test counts when adding/removing tests. Keep sorted by count descending.
+- **GitHub Actions** — Document new workflows in the project structure and relevant sections.
+
+If a PR changes user-facing behavior, features, or project structure, the README **must** be updated in the same PR.
+
 ## Release Process
 
 The extension is published to the Chrome Web Store (unlisted) via GitHub Actions. The workflow is triggered by pushing a git tag.

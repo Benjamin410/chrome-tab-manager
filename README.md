@@ -24,7 +24,10 @@ A Chrome Side Panel extension that groups all your open tabs by domain, sorted b
 - **Cross-window support** — See tabs from all Chrome windows in one place
 - **Window grouping toggle** — Optionally group tabs by window, or mix them all together
 - **Window filter** — Filter to show only tabs from a specific window
-- **Search** — Filter tabs by title or URL in real-time
+- **Search** — Filter tabs by title, URL, or page labels in real-time
+- **Page labels** — Extracts meta tags (description, keywords, Open Graph, article tags) from pages and displays them on tab rows; toggleable via the **Labels** button
+- **Tab sorting** — Sort tabs by title (A–Z / Z–A) or by last accessed time (newest / oldest); persisted across sessions
+- **Merge duplicates** — Close extra tabs per domain, keeping only one (active or most recent) with confirmation
 - **Chrome tab grouping** — Group all tabs of a domain into a native Chrome tab group with one click, with automatic color coding and domain name labels; works across multiple windows simultaneously
 - **Close actions** — Close individual tabs, all tabs of a domain, or all tabs older than 7 days
 - **Keyboard shortcut** — `Cmd+M` (Mac) / `Ctrl+M` (Windows/Linux) to toggle the side panel
@@ -82,6 +85,9 @@ Chrome lists these when you install or update the extension:
 | Close all tabs of a domain | Hover the domain header and click **Close all** |
 | Close old tabs | Click **Close old (>7d)** in the header |
 | Search | Type in the search field |
+| Sort tabs | Use the sort dropdown (A–Z, Z–A, Time ↑, Time ↓) |
+| Toggle page labels | Click the **Labels** button in the toolbar |
+| Merge duplicate tabs | Click the **merge icon** in the header |
 | Filter by window | Use the window dropdown |
 | Group by window | Toggle the **Windows** button |
 | Switch theme | Click the sun/moon icon |
@@ -98,30 +104,58 @@ Chrome lists these when you install or update the extension:
 ## Project Structure
 
 ```
-├── extension/                    # Chrome Extension (load this in chrome://extensions)
-│   ├── manifest.json             # Extension manifest (Manifest V3)
-│   ├── background.js             # Service worker: tab event forwarding
-│   ├── sidepanel.html            # Side panel markup
-│   ├── sidepanel.css             # Styles with light/dark theme
-│   ├── sidepanel.js              # UI logic, rendering, event handling
-│   ├── i18n.js                   # Translations (en, de, fr, es)
-│   ├── banner.js                 # Content script: edge banner on pages
-│   ├── banner.css                # Banner styling and positioning
+├── extension/                              # Chrome Extension (load this in chrome://extensions)
+│   ├── manifest.json                       # Extension manifest (Manifest V3)
+│   ├── background.js                       # Service worker entry point
+│   ├── core/
+│   │   ├── i18n.js                         # Translations (en, de, fr, es)
+│   │   ├── models.js                       # JSDoc type definitions
+│   │   └── background/
+│   │       ├── main.js                     # Tab events, storage, message handlers
+│   │       └── dev-hot-reload.js           # Dev-mode file watcher reload
+│   ├── features/
+│   │   ├── tab-browser/
+│   │   │   ├── sidepanel.html              # Side panel markup
+│   │   │   ├── sidepanel.css               # Styles with light/dark theme
+│   │   │   ├── sidepanel.js                # UI logic, rendering, event handling
+│   │   │   ├── banner.js                   # Content script: edge banner
+│   │   │   ├── banner.css                  # Banner styling
+│   │   │   └── page-meta-labels.js         # Content script: meta tag extraction
+│   │   ├── tab-history/
+│   │   │   └── tab-history.js              # Recently closed tabs/windows
+│   │   └── tab-usage/
+│   │       └── tab-usage.js                # Tab usage dashboard + table
 │   └── icons/
 │       ├── icon16.png
 │       ├── icon48.png
 │       └── icon128.png
-├── tests/                        # Playwright E2E tests
-│   ├── fixtures.js               # Chrome + Extension launch fixture
-│   ├── sidepanel.spec.js         # Side panel core UI tests
-│   ├── close-actions.spec.js     # Tab close actions
-│   ├── search.spec.js            # Search functionality
-│   ├── theme.spec.js             # Theme switching
-│   ├── banner.spec.js            # Edge banner tests
-│   ├── window-management.spec.js # Window filter + grouping
-│   ├── tab-grouping.spec.js     # Chrome tab group feature
-│   └── i18n.spec.js              # Language switching
-├── playwright.config.js          # Playwright configuration
+├── tests/                                  # Playwright E2E tests (105 tests)
+│   ├── fixtures.js                         # Chrome + Extension launch fixture
+│   ├── sidepanel.spec.js                   # Core UI (12 tests)
+│   ├── tab-grouping.spec.js                # Chrome tab groups (17 tests)
+│   ├── close-actions.spec.js               # Close actions (8 tests)
+│   ├── search.spec.js                      # Search (7 tests)
+│   ├── window-management.spec.js           # Window management (7 tests)
+│   ├── toggle-panel.spec.js                # Panel toggle (7 tests)
+│   ├── tab-usage.spec.js                   # Tab usage (7 tests)
+│   ├── service-worker.spec.js              # Service worker (6 tests)
+│   ├── i18n.spec.js                        # Language switching (6 tests)
+│   ├── tab-history.spec.js                 # Tab history (5 tests)
+│   ├── banner.spec.js                      # Edge banner (5 tests)
+│   ├── sorting.spec.js                     # Tab sorting (4 tests)
+│   ├── merge-duplicates.spec.js            # Merge duplicates (4 tests)
+│   └── theme.spec.js                       # Theme (4 tests)
+├── scripts/
+│   ├── build.js                            # Build extension ZIP
+│   ├── screenshots.js                      # Generate store screenshots
+│   ├── dev-watch.js                        # File watcher for hot reload
+│   ├── launch-browser-dev.js               # Launch browser for dev
+│   └── resolve-browser.js                  # Browser path resolution
+├── .github/workflows/
+│   ├── test.yml                            # E2E tests on PRs
+│   ├── screenshots.yml                     # Screenshot generation (PRs + manual)
+│   └── publish.yml                         # Chrome Web Store publish on tags
+├── playwright.config.js
 ├── package.json
 └── README.md
 ```
