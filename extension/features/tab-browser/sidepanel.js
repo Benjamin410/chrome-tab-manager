@@ -5,7 +5,7 @@ let groupByWindow = false;
 let filterWindowId = null;
 let groupOperationInProgress = false;
 /** When true, show HTML head-derived labels on domain rows and tab rows. */
-let showPageLabels = true;
+let showPageLabels = false;
 /** @type {'titleAsc' | 'titleDesc' | 'timeAsc' | 'timeDesc'} */
 let tabSortMode = 'timeDesc';
 /** @type {Record<string, string>} Maps domain → custom display name */
@@ -203,7 +203,7 @@ async function initSettings() {
     'showPageLabelsPref',
   ]);
   groupByWindow = groupByWindowPref || false;
-  showPageLabels = showPageLabelsPref !== false;
+  showPageLabels = showPageLabelsPref === true;
   updateWindowToggle();
   updateLabelsToggle();
 }

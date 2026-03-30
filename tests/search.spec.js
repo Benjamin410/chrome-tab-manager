@@ -115,6 +115,8 @@ test.describe('Search', () => {
     await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
+    // Enable labels (off by default)
+    await panel.locator('#labels-toggle').click();
     await expect(panel.locator('.tab-page-label')).toContainText(unique, { timeout: 20000 });
 
     await panel.locator('#search').fill(unique);
@@ -138,6 +140,8 @@ test.describe('Search', () => {
     await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
     await panel.waitForSelector('.domain-group');
 
+    // Enable labels (off by default), then toggle off
+    await panel.locator('#labels-toggle').click();
     await expect(panel.locator('.tab-page-label')).toContainText(unique, { timeout: 20000 });
 
     await panel.locator('#labels-toggle').click();
