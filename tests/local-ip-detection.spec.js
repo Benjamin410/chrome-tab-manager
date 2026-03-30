@@ -1,0 +1,86 @@
+const { expect } = require('@playwright/test');
+const test = require('./fixtures');
+
+test.describe('Local IP Detection', () => {
+  test('localhost tab shows page title as domain header', async ({ context, extensionId }) => {
+    const tab = await context.newPage();
+    // Use a data URI with a base tag to simulate localhost origin
+    await tab.goto('http://localhost:3000', { waitUntil: 'commit' }).catch(() => {});
+    // Set title after navigation attempt — even if the page didn't fully load,
+    // Chrome keeps the tab with the URL registered
+    await tab.waitForTimeout(500);
+    await tab.evaluate(() => { document.title = 'My Dev Server'; }).catch(() => {});
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    // Domain header should show tab title instead of "localhost"
+    const domainName = panel.locator('.domain-name[title="localhost"]');
+    await expect(domainName).toHaveText('My Dev Server');
+  });
+
+  test('non-local domain still shows domain name', async ({ context, extensionId }) => {
+    const tab = await context.newPage();
+    await tab.goto('https://example.com');
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    const domainName = panel.locator('.domain-name', { hasText: 'example.com' });
+    await expect(domainName).toHaveText('example.com');
+    // No title attribute for non-local domains (name matches domain)
+    await expect(domainName).not.toHaveAttribute('title');
+  });
+
+  test('custom domain name takes priority over local IP display', async ({ context, extensionId }) => {
+    const tab = await context.newPage();
+    await tab.goto('http://localhost:3000', { waitUntil: 'commit' }).catch(() => {});
+    await tab.waitForTimeout(500);
+    await tab.evaluate(() => { document.title = 'Dev Server'; }).catch(() => {});
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    // Rename the localhost domain
+    const header = panel.locator('.domain-header', { hasText: 'Dev Server' });
+    await expect(async () => {
+      await header.hover();
+      const renameBtn = header.locator('.domain-rename-btn');
+      await expect(renameBtn).toHaveCSS('opacity', '1', { timeout: 500 });
+    }).toPass({ timeout: 5000 });
+    await header.locator('.domain-rename-btn').click();
+
+    const input = panel.locator('.domain-rename-input');
+    await input.fill('My Local App');
+    await input.press('Enter');
+
+    await panel.waitForSelector('.domain-name.has-custom-name');
+    const domainName = panel.locator('.domain-name.has-custom-name');
+    // Custom name wins over tab-title-based display
+    await expect(domainName).toHaveText('My Local App');
+    await expect(domainName).toHaveAttribute('title', 'localhost');
+  });
+
+  test('local address tab shows host as secondary label', async ({ context, extensionId }) => {
+    const tab = await context.newPage();
+    await tab.goto('http://localhost:4000', { waitUntil: 'commit' }).catch(() => {});
+    await tab.waitForTimeout(500);
+    await tab.evaluate(() => { document.title = 'Local App'; }).catch(() => {});
+
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group');
+
+    // Expand the domain group to see tab entries
+    const header = panel.locator('.domain-header', { hasText: 'Local App' });
+    await header.click();
+    await panel.waitForSelector('.tab-entry');
+
+    // Tab should have secondary label showing the host
+    const tabLabel = panel.locator('.tab-page-label');
+    await expect(tabLabel).toHaveText('localhost');
+  });
+});

@@ -17,9 +17,12 @@ test.describe('Custom Domain Names', () => {
     await expect(renameBtn).toBeAttached();
     await expect(renameBtn).toHaveCSS('opacity', '0');
 
-    // Hover shows button
-    await header.hover();
-    await expect(renameBtn).toHaveCSS('opacity', '1');
+    // Hover shows button — re-hover in a retry loop because background
+    // tabs-changed messages can rebuild the DOM and lose hover state.
+    await expect(async () => {
+      await header.hover();
+      await expect(renameBtn).toHaveCSS('opacity', '1', { timeout: 500 });
+    }).toPass({ timeout: 5000 });
   });
 
   test('rename button enters inline edit mode', async ({ context, extensionId }) => {
