@@ -28,6 +28,7 @@ A Chrome Side Panel extension that groups all your open tabs by domain, sorted b
 - **Page labels** — Extracts meta tags (description, keywords, Open Graph, article tags) from pages and displays them on tab rows; toggleable via the **Labels** button
 - **Tab sorting** — Sort tabs by title (A–Z / Z–A) or by last accessed time (newest / oldest); persisted across sessions
 - **Merge duplicates** — Close extra tabs per domain, keeping only one (active or most recent) with confirmation
+- **Custom domain names** — Rename any domain group (e.g. "github.com" → "Code") for faster visual recognition; names persist across sessions, sync to Chrome tab groups, and are searchable
 - **Chrome tab grouping** — Group all tabs of a domain into a native Chrome tab group with one click, with automatic color coding and domain name labels; works across multiple windows simultaneously
 - **Close actions** — Close individual tabs, all tabs of a domain, or all tabs older than 7 days
 - **Keyboard shortcut** — `Cmd+M` (Mac) / `Ctrl+M` (Windows/Linux) to toggle the side panel
@@ -82,6 +83,8 @@ Chrome lists these when you install or update the extension:
 | Close a tab | Hover and click the **x** button |
 | Group tabs by domain | Hover the domain header and click the **folder icon** |
 | Ungroup tabs | Hover a grouped domain and click the **folder-minus icon** |
+| Rename a domain | Hover the domain header and click the **pencil icon**, type a custom name, press Enter |
+| Reset a domain name | Rename it to empty or back to the original hostname |
 | Close all tabs of a domain | Hover the domain header and click **Close all** |
 | Close old tabs | Click **Close old (>7d)** in the header |
 | Search | Type in the search field |
@@ -129,8 +132,9 @@ Chrome lists these when you install or update the extension:
 │       ├── icon16.png
 │       ├── icon48.png
 │       └── icon128.png
-├── tests/                                  # Playwright E2E tests (105 tests)
+├── tests/                                  # Playwright E2E tests (112 tests)
 │   ├── fixtures.js                         # Chrome + Extension launch fixture
+│   ├── custom-domain-names.spec.js         # Custom domain names (7 tests)
 │   ├── sidepanel.spec.js                   # Core UI (12 tests)
 │   ├── tab-grouping.spec.js                # Chrome tab groups (17 tests)
 │   ├── close-actions.spec.js               # Close actions (8 tests)
@@ -173,7 +177,7 @@ npx playwright test --ui         # Interactive UI mode
 
 `npm test` does not run the suite; it prints a reminder to use `npm run test:e2e`.
 
-### Test Coverage (105 tests)
+### Test Coverage (112 tests)
 
 | Test file | Tests | Feature |
 |-----------|------:|---------|
@@ -184,6 +188,7 @@ npx playwright test --ui         # Interactive UI mode
 | `toggle-panel.spec.js` | 7 | Panel Toggle (shortcut, port, close, banner) |
 | `search.spec.js` | 7 | Search (filter, URL/title match, labels) |
 | `tab-usage.spec.js` | 7 | Tab Usage (dashboard, table, badges, polling, persistence) |
+| `custom-domain-names.spec.js` | 7 | Custom Domain Names (rename, persist, search, tab group sync, cancel) |
 | `service-worker.spec.js` | 6 | Service Worker (tab events, usage tracking, label storage) |
 | `i18n.spec.js` | 6 | Internationalization (DE/EN/ES/FR, persistence) |
 | `tab-history.spec.js` | 5 | Tab History (collapse, search, restore, closed today) |

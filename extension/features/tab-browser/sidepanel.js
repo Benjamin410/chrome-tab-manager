@@ -8,6 +8,8 @@ let groupOperationInProgress = false;
 let showPageLabels = true;
 /** @type {'titleAsc' | 'titleDesc' | 'timeAsc' | 'timeDesc'} */
 let tabSortMode = 'timeDesc';
+/** @type {Record<string, string>} Maps domain → custom display name */
+let customDomainNames = {};
 
 // Tab group colors
 const TAB_GROUP_COLORS = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
@@ -19,6 +21,19 @@ function pickGroupColor(domain) {
     hash |= 0;
   }
   return TAB_GROUP_COLORS[Math.abs(hash) % TAB_GROUP_COLORS.length];
+}
+
+function getDisplayName(domain) {
+  return customDomainNames[domain] || domain;
+}
+
+async function setCustomDomainName(domain, customName) {
+  if (customName && customName !== domain) {
+    customDomainNames[domain] = customName;
+  } else {
+    delete customDomainNames[domain];
+  }
+  await chrome.storage.local.set({ customDomainNames });
 }
 
 // Elements
@@ -241,7 +256,8 @@ confirmOk.addEventListener('click', () => {
 // Data loading
 async function loadTabs() {
   allTabs = await chrome.tabs.query({});
-  const { tabPageLabels } = await chrome.storage.local.get('tabPageLabels');
+  const { tabPageLabels, customDomainNames: storedNames } = await chrome.storage.local.get(['tabPageLabels', 'customDomainNames']);
+  customDomainNames = (storedNames && typeof storedNames === 'object') ? storedNames : {};
   const labelMap = tabPageLabels && typeof tabPageLabels === 'object' ? tabPageLabels : {};
   // Enrich tabs with their group color (query all groups at once for cross-window reliability)
   const groupColorMap = new Map();
@@ -495,7 +511,21 @@ function renderDomainGroup(group, windowId) {
 
   const nameSpan = document.createElement('span');
   nameSpan.className = 'domain-name';
-  nameSpan.textContent = group.domain;
+  const displayName = getDisplayName(group.domain);
+  nameSpan.textContent = displayName;
+  if (customDomainNames[group.domain]) {
+    nameSpan.classList.add('has-custom-name');
+    nameSpan.title = group.domain;
+  }
+
+  const renameBtn = document.createElement('button');
+  renameBtn.className = 'domain-rename-btn';
+  renameBtn.title = t.renameDomain;
+  renameBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>';
+  renameBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    enterRenameMode(nameSpan, group.domain, renameBtn);
+  });
 
   const headerText = document.createElement('div');
   headerText.className = 'domain-header-text';
@@ -515,6 +545,7 @@ function renderDomainGroup(group, windowId) {
     headerText.appendChild(stack);
   }
   header.appendChild(headerText);
+  header.appendChild(renameBtn);
 
   const ageSpan = document.createElement('span');
   ageSpan.className = 'domain-age';
@@ -550,7 +581,7 @@ function renderDomainGroup(group, windowId) {
   header.appendChild(closeBtn);
 
   header.addEventListener('click', (e) => {
-    if (e.target.closest('.domain-close') || e.target.closest('.domain-group-btn')) return;
+    if (e.target.closest('.domain-close') || e.target.closest('.domain-group-btn') || e.target.closest('.domain-rename-btn')) return;
     toggleDomain(domainKey, domainEl);
   });
 
@@ -558,7 +589,7 @@ function renderDomainGroup(group, windowId) {
     e.stopPropagation();
     const tabIds = group.tabs.map(tab => tab.id);
     const confirmed = await showConfirm(
-      t.confirmCloseAllDomain(group.tabs.length, group.domain)
+      t.confirmCloseAllDomain(group.tabs.length, customDomainNames[group.domain] ? `${customDomainNames[group.domain]} (${group.domain})` : group.domain)
     );
     if (confirmed) {
       await chrome.tabs.remove(tabIds);
@@ -584,7 +615,7 @@ function renderDomainGroup(group, windowId) {
             tabIds,
           });
           await chrome.tabGroups.update(groupId, {
-            title: group.domain,
+            title: getDisplayName(group.domain),
             color: pickGroupColor(group.domain),
           });
         }));
@@ -605,7 +636,7 @@ function renderDomainGroup(group, windowId) {
     tabEl.className = 'tab-entry' + (showPageLabels && tab.pageLabel ? ' has-tab-label' : '');
     tabEl.dataset.tabId = tab.id;
     const pl = (tab.pageLabel || '').toLowerCase();
-    tabEl.dataset.searchText = `${(tab.title || '').toLowerCase()} ${(tab.url || '').toLowerCase()} ${pl}`;
+    tabEl.dataset.searchText = `${(tab.title || '').toLowerCase()} ${(tab.url || '').toLowerCase()} ${pl} ${getDisplayName(group.domain).toLowerCase()}`;
 
     const isActive = tab.active;
 
@@ -673,6 +704,51 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// Rename domain
+function enterRenameMode(nameSpan, domain, renameBtn) {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'domain-rename-input';
+  input.value = getDisplayName(domain);
+  input.setAttribute('aria-label', t.renameDomainInputAria);
+  nameSpan.replaceWith(input);
+  renameBtn.style.display = 'none';
+  input.focus();
+  input.select();
+
+  let committed = false;
+  const commit = async () => {
+    if (committed) return;
+    committed = true;
+    const newName = input.value.trim();
+    await setCustomDomainName(domain, newName);
+    await syncTabGroupTitle(domain);
+    loadTabs();
+  };
+  const cancel = () => {
+    if (committed) return;
+    committed = true;
+    loadTabs();
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+  input.addEventListener('blur', commit);
+}
+
+async function syncTabGroupTitle(domain) {
+  try {
+    const allGroups = await chrome.tabGroups.query({});
+    const displayName = getDisplayName(domain);
+    for (const g of allGroups) {
+      if (g.title === domain || g.title === customDomainNames[domain] || g.title === displayName) {
+        await chrome.tabGroups.update(g.id, { title: displayName });
+      }
+    }
+  } catch { /* tabGroups API unavailable */ }
 }
 
 // Search
@@ -831,7 +907,9 @@ chrome.runtime.onMessage.addListener((msg) => {
 
 // Refresh when HTML head labels are updated (content script → storage)
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || !changes.tabPageLabels || groupOperationInProgress) return;
+  if (area !== 'local' || groupOperationInProgress) return;
+  if (!changes.tabPageLabels && !changes.customDomainNames) return;
+  if (document.querySelector('.domain-rename-input')) return;
   loadTabs();
 });
 

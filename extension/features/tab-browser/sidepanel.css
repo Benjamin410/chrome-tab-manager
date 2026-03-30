@@ -553,6 +553,54 @@ body {
   white-space: nowrap;
 }
 
+.domain-name.has-custom-name {
+  font-style: italic;
+}
+
+.domain-rename-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.domain-header:hover .domain-rename-btn,
+.domain-header.hover .domain-rename-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.domain-rename-btn:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.domain-rename-input {
+  font-weight: 500;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 1px 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  min-width: 80px;
+  max-width: 200px;
+}
+
+.domain-rename-input:focus {
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
 /* Multi-tab domain: one line per tab with a head label (title + label); single-tab hosts use tab row only */
 .domain-group-label-stack {
   display: flex;

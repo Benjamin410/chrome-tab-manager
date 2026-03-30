@@ -96,6 +96,9 @@ const translations = {
     tabUsageBadgeMuted: 'Muted',
     tabUsageBadgeIncognito: 'Private',
     tabUsageBadgeFrozen: 'Frozen',
+    renameDomain: 'Rename domain',
+    renameDomainInputAria: 'Custom name for this domain',
+    resetDomainName: 'Reset to original',
   },
   de: {
     searchPlaceholder: 'Tabs suchen...',
@@ -194,6 +197,9 @@ const translations = {
     tabUsageBadgeMuted: 'Stumm',
     tabUsageBadgeIncognito: 'Privat',
     tabUsageBadgeFrozen: 'Eingefroren',
+    renameDomain: 'Domain umbenennen',
+    renameDomainInputAria: 'Benutzerdefinierter Name für diese Domain',
+    resetDomainName: 'Zurücksetzen',
   },
   fr: {
     searchPlaceholder: 'Rechercher des onglets...',
@@ -292,6 +298,9 @@ const translations = {
     tabUsageBadgeMuted: 'Muet',
     tabUsageBadgeIncognito: 'Privé',
     tabUsageBadgeFrozen: 'Gelé',
+    renameDomain: 'Renommer le domaine',
+    renameDomainInputAria: 'Nom personnalisé pour ce domaine',
+    resetDomainName: 'Réinitialiser',
   },
   es: {
     searchPlaceholder: 'Buscar pestañas...',
@@ -390,6 +399,9 @@ const translations = {
     tabUsageBadgeMuted: 'Silenciado',
     tabUsageBadgeIncognito: 'Privado',
     tabUsageBadgeFrozen: 'Congelada',
+    renameDomain: 'Renombrar dominio',
+    renameDomainInputAria: 'Nombre personalizado para este dominio',
+    resetDomainName: 'Restaurar original',
   },
 };
 
