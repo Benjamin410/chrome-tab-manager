@@ -577,7 +577,8 @@ function renderDomainGroup(group, windowId) {
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'domain-close';
-  closeBtn.textContent = t.closeAll;
+  closeBtn.title = t.closeAll;
+  closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   header.appendChild(closeBtn);
 
   header.addEventListener('click', (e) => {
