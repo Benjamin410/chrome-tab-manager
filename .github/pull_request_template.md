@@ -37,5 +37,4 @@
 - [ ] Changes are scoped to the stated goal (no unrelated modifications)
 - [ ] No new permissions added without justification
 - [ ] i18n strings added for all 4 languages (if UI text changed)
-- [ ] README updated (if user-facing behavior changed: features list, usage table, project structure, test coverage)
-- [ ] Quality check passes (README structure, test documentation, i18n completeness)
+- [ ] README updated (if user-facing behavior changed)
