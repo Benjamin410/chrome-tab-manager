@@ -118,17 +118,23 @@ async function setLanguage(panel, lang) {
 }
 
 async function expandFirstDomains(panel, count) {
-  const headers = await panel.$$('.domain-header');
-  for (let i = 0; i < Math.min(count, headers.length); i++) {
-    await headers[i].click();
+  const arrows = await panel.$$('.domain-header .domain-arrow');
+  for (let i = 0; i < Math.min(count, arrows.length); i++) {
+    await arrows[i].click();
     await sleep(200);
   }
 }
 
 async function collapseAllDomains(panel) {
-  const expandedHeaders = await panel.$$('.domain-group.expanded .domain-header');
-  for (const header of expandedHeaders) {
-    await header.click();
+  let expanded = await panel.$$('.domain-group.expanded .domain-arrow');
+  for (const arrow of expanded) {
+    try { await arrow.click(); } catch { /* element detached, re-query */ break; }
+    await sleep(100);
+  }
+  // Re-query in case DOM was refreshed mid-loop
+  expanded = await panel.$$('.domain-group.expanded .domain-arrow');
+  for (const arrow of expanded) {
+    try { await arrow.click(); } catch { break; }
     await sleep(100);
   }
 }
