@@ -534,8 +534,12 @@ function renderDomainGroup(group, windowId) {
     const stack = document.createElement('div');
     stack.className = 'domain-group-label-stack';
     stack.setAttribute('role', 'group');
+    const seenLabels = new Set();
     for (const tab of group.tabs) {
       if (!tab.pageLabel) continue;
+      const labelKey = tab.pageLabel.toLowerCase();
+      if (seenLabels.has(labelKey)) continue;
+      seenLabels.add(labelKey);
       const line = document.createElement('div');
       line.className = 'domain-group-label-line';
       const shortTitle = truncateForGroupLabel(tab.title || 'Untitled', 42);
