@@ -2,6 +2,16 @@
 
 A Chrome extension that provides a sidebar for managing browser tabs with search, grouping, theming, and multi-window support.
 
+## Git Workflow
+
+**Never push directly to master.** All changes must go through a pull request:
+
+1. Create a feature branch (e.g. `feat/my-change`)
+2. Commit changes on the branch
+3. Push and create a PR against `master`
+4. Wait for CI checks to pass
+5. Merge via GitHub (after review if applicable)
+
 ## Tech Stack
 
 - Vanilla JavaScript (no framework)
@@ -70,6 +80,18 @@ Every PR should follow this structure:
 - E2E tests added/updated for new features or behavior changes
 - Existing tests still pass (`npm run test:e2e`)
 - README updated if user-facing behavior changed
+
+## README Quality Rules
+
+The README must stay in sync with the codebase. When making changes, verify:
+
+- **Features list** — Every user-facing feature must be listed. Add new features, remove deprecated ones.
+- **Usage table** — Every user action/interaction must have an entry.
+- **Project structure** — File tree must match actual paths. Update when files are added, moved, or removed.
+- **Test coverage table** — Update test counts when adding/removing tests. Keep sorted by count descending.
+- **GitHub Actions** — Document new workflows in the project structure and relevant sections.
+
+If a PR changes user-facing behavior, features, or project structure, the README **must** be updated in the same PR.
 
 ## Release Process
 

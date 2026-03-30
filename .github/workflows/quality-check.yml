@@ -1,0 +1,75 @@
+name: Quality Check
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify test files are documented in README
+        run: |
+          errors=0
+
+          for spec in tests/*.spec.js; do
+            basename=$(basename "$spec")
+            if ! grep -q "$basename" README.md; then
+              echo "::error::Test file '$basename' is not documented in README test coverage table"
+              errors=$((errors + 1))
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            exit 1
+          fi
+          echo "All test files documented."
+
+      - name: Verify i18n has all 4 languages
+        run: |
+          lang_file="extension/core/i18n.js"
+          errors=0
+
+          for lang in en de fr es; do
+            if ! grep -q "\"$lang\"" "$lang_file" && ! grep -q "'$lang'" "$lang_file"; then
+              # Also check for object key pattern like  en: {
+              if ! grep -qE "^\s+$lang\s*:" "$lang_file"; then
+                echo "::error::Language '$lang' not found in $lang_file"
+                errors=$((errors + 1))
+              fi
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            exit 1
+          fi
+          echo "All 4 languages present in i18n."
+
+      - name: Verify no new permissions without documentation
+        run: |
+          manifest="extension/manifest.json"
+          documented="tabs tabGroups sidePanel storage sessions"
+
+          # Extract permissions from manifest
+          perms=$(node -e "
+            const m = require('./$manifest');
+            console.log((m.permissions || []).join(' '));
+          ")
+
+          errors=0
+          for perm in $perms; do
+            if ! echo "$documented" | grep -qw "$perm"; then
+              echo "::error::Permission '$perm' in manifest.json is not documented in README. Add justification."
+              errors=$((errors + 1))
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            exit 1
+          fi
+          echo "All permissions documented."
