@@ -506,6 +506,11 @@ function render() {
     return;
   }
 
+  // Optimize initial rendering performance by batching DOM insertions into a DocumentFragment.
+  // This reduces reflows/repaints, making the panel significantly faster to open
+  // for users with hundreds or thousands of open tabs.
+  const fragment = document.createDocumentFragment();
+
   if (groupByWindow && totalWindows > 1) {
     const windows = new Map();
     for (const tab of tabs) {
@@ -519,26 +524,29 @@ function render() {
       const windowHeader = document.createElement('div');
       windowHeader.className = 'window-header';
       windowHeader.textContent = t.windowHeader(windowIndex, windowTabs.length);
-      tabListEl.appendChild(windowHeader);
+      fragment.appendChild(windowHeader);
 
       const domainGroups = groupDomains(windowTabs);
       for (const group of domainGroups) {
-        renderDomainGroup(group, windowId);
+        renderDomainGroup(group, windowId, fragment);
       }
     }
   } else {
     const domainGroups = groupDomains(tabs);
     for (const group of domainGroups) {
-      renderDomainGroup(group, null);
+      renderDomainGroup(group, null, fragment);
     }
   }
+
+  // Append everything at once to trigger a single reflow instead of O(N) reflows
+  tabListEl.appendChild(fragment);
 
   if (searchEl.value.trim()) {
     applySearch(searchEl.value.trim());
   }
 }
 
-function renderDomainGroup(group, windowId) {
+function renderDomainGroup(group, windowId, parentEl) {
   const domainKey = windowId ? `${windowId}:${group.domain}` : `all:${group.domain}`;
   const isExpanded = expandedDomains.has(domainKey);
 
@@ -558,6 +566,7 @@ function renderDomainGroup(group, windowId) {
   if (group.favicon) {
     const img = document.createElement('img');
     img.className = 'domain-favicon';
+    img.loading = 'lazy';
     img.src = group.favicon;
     img.alt = '';
     header.appendChild(img);
@@ -751,7 +760,11 @@ function renderDomainGroup(group, windowId) {
   }
 
   domainEl.appendChild(tabsContainer);
-  tabListEl.appendChild(domainEl);
+  if (parentEl) {
+    parentEl.appendChild(domainEl);
+  } else {
+    tabListEl.appendChild(domainEl);
+  }
 }
 
 function toggleDomain(key, el) {
