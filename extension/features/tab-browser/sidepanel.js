@@ -807,11 +807,13 @@ async function syncTabGroupTitle(domain) {
   try {
     const allGroups = await chrome.tabGroups.query({});
     const displayName = getDisplayName(domain);
+    const updates = [];
     for (const g of allGroups) {
       if (g.title === domain || g.title === customDomainNames[domain] || g.title === displayName) {
-        await chrome.tabGroups.update(g.id, { title: displayName });
+        updates.push(chrome.tabGroups.update(g.id, { title: displayName }));
       }
     }
+    await Promise.all(updates);
   } catch { /* tabGroups API unavailable */ }
 }
 
