@@ -266,6 +266,7 @@ function tabHistoryAppendSessionRow(parentUl, session) {
     if (fav) {
       const img = document.createElement('img');
       img.className = 'tab-history-favicon';
+      img.loading = 'lazy';
       img.src = fav;
       img.alt = '';
       img.width = 16;
@@ -308,6 +309,7 @@ function tabHistoryAppendSessionRow(parentUl, session) {
     if (fav) {
       const img = document.createElement('img');
       img.className = 'tab-history-favicon tab-history-favicon--stacked';
+      img.loading = 'lazy';
       img.src = fav;
       img.alt = '';
       img.width = 16;
