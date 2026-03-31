@@ -133,7 +133,7 @@ Chrome lists these when you install or update the extension:
 │       ├── icon16.png
 │       ├── icon48.png
 │       └── icon128.png
-├── tests/                                  # Playwright E2E tests (116 tests)
+├── tests/                                  # Playwright E2E tests (124 tests)
 │   ├── fixtures.js                         # Chrome + Extension launch fixture
 │   ├── custom-domain-names.spec.js         # Custom domain names (7 tests)
 │   ├── sidepanel.spec.js                   # Core UI (12 tests)
@@ -179,7 +179,7 @@ npx playwright test --ui         # Interactive UI mode
 
 `npm test` does not run the suite; it prints a reminder to use `npm run test:e2e`.
 
-### Test Coverage (116 tests)
+### Test Coverage (124 tests)
 
 | Test file | Tests | Feature |
 |-----------|------:|---------|
@@ -199,6 +199,7 @@ npx playwright test --ui         # Interactive UI mode
 | `merge-duplicates.spec.js` | 4 | Merge Duplicates (detect, confirm, cancel, close extras) |
 | `local-ip-detection.spec.js` | 4 | Local IP Detection (localhost display, custom name priority, secondary label) |
 | `theme.spec.js` | 4 | Theme (toggle, persistence, CSS variables) |
+| `preview-unit.spec.js` | 8 | String Truncation (null/empty, length limits, trimming) |
 
 ## License
 

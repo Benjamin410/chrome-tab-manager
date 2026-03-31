@@ -233,6 +233,15 @@
     });
   }
 
+  // Export for testing in Node.js
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { preview };
+  }
+
+  if (typeof document === 'undefined') {
+    return;
+  }
+
   try {
     sendLabel('immediate');
 
