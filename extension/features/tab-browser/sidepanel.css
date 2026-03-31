@@ -1377,3 +1377,20 @@ body {
   margin: 0;
   padding: 12px;
 }
+
+/* Accessibility / Focus states */
+.domain-header:focus-visible,
+.tab-entry:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: var(--bg-hover);
+}
+
+.domain-close:focus-visible,
+.domain-group-btn:focus-visible,
+.domain-rename-btn:focus-visible,
+.tab-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  opacity: 1; /* Make sure it's visible when focused via keyboard */
+}
