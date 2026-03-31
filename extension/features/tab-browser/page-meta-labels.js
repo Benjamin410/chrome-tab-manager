@@ -40,9 +40,9 @@
   function decodeHtmlEntities(str) {
     if (!str) return '';
     try {
-      const ta = document.createElement('textarea');
-      ta.innerHTML = str;
-      return ta.value;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(str, 'text/html');
+      return doc.documentElement.textContent;
     } catch (e) {
       console.warn(`${LOG_PREFIX} decodeHtmlEntities failed`, e);
       return str;
