@@ -79,4 +79,43 @@ test.describe('Local IP Detection', () => {
     const tabLabel = panel.locator('.tab-page-label');
     await expect(tabLabel).toHaveText('localhost');
   });
+
+  test('correctly identifies valid and invalid IPv4 hosts', async ({ context, extensionId }) => {
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${test.SIDE_PANEL_HTML}`);
+    await panel.waitForSelector('.domain-group, .empty-state');
+
+    // Evaluate the function directly in the browser context since it's global in sidepanel.js
+    const results = await panel.evaluate(() => {
+      const invalidCases = [
+        'localhost',
+        'example.com',
+        '256.0.0.1', // Fails because 256 > 255
+        '1.2.3',
+        '1.2.3.4.5',
+        '1..3.4',
+        'a.b.c.d',
+        '192.168.1.1 '
+      ];
+
+      const validCases = [
+        '127.0.0.1',
+        '192.168.1.1',
+        '10.0.0.1',
+        '0.0.0.0',
+        '255.255.255.255'
+      ];
+
+      return {
+        valid: validCases.map(ip => ({ip, isValid: isIpv4Host(ip)})),
+        invalid: invalidCases.map(ip => ({ip, isValid: isIpv4Host(ip)}))
+      };
+    });
+
+    const failedValid = results.valid.filter(v => v.isValid === false);
+    const failedInvalid = results.invalid.filter(v => v.isValid === true);
+
+    expect(failedValid).toEqual([]);
+    expect(failedInvalid).toEqual([]);
+  });
 });
