@@ -11,8 +11,7 @@ test.describe('Tab History', () => {
   test('history search input filters items', async ({ context, extensionId }) => {
     // Close a tab to create history
     const target = await context.newPage();
-    await target.goto('https://example.com');
-    await target.waitForLoadState('domcontentloaded');
+    await target.goto('https://example.com').catch(() => {});
     await target.close();
 
     const panel = await context.newPage();
@@ -39,8 +38,7 @@ test.describe('Tab History', () => {
   test('open last button exists and is clickable', async ({ context, extensionId }) => {
     // Close a tab first to have history
     const target = await context.newPage();
-    await target.goto('https://example.com');
-    await target.waitForLoadState('domcontentloaded');
+    await target.goto('https://example.com').catch(() => {});
     await target.close();
 
     const panel = await context.newPage();
@@ -68,8 +66,7 @@ test.describe('Tab History', () => {
 
     // Close a tab
     const target = await context.newPage();
-    await target.goto('https://example.com');
-    await target.waitForLoadState('domcontentloaded');
+    await target.goto('https://example.com').catch(() => {});
     await target.close();
 
     // Wait for sessions update
@@ -83,8 +80,7 @@ test.describe('Tab History', () => {
   test('clicking a history item restores it', async ({ context, extensionId }) => {
     // Close a known tab
     const target = await context.newPage();
-    await target.goto('https://example.com');
-    await target.waitForLoadState('domcontentloaded');
+    await target.goto('https://example.com').catch(() => {});
     await target.close();
 
     const panel = await context.newPage();
