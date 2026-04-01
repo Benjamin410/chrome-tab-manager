@@ -29,7 +29,7 @@ A Chrome Side Panel extension that groups all your open tabs by domain, sorted b
 - **Tab sorting** — Sort tabs by title (A–Z / Z–A) or by last accessed time (newest / oldest); persisted across sessions
 - **Merge duplicates** — Close extra tabs per domain, keeping only one (active or most recent) with confirmation
 - **Custom domain names** — Rename any domain group (e.g. "github.com" → "Code") for faster visual recognition; names persist across sessions, sync to Chrome tab groups, and are searchable
-- **Local IP detection** — Local addresses (localhost, 192.168.x.x, 10.x.x.x, etc.) show the page title as domain header instead of the raw IP, with the address visible on hover and as a secondary tab label
+- **Local IP detection** — Local addresses (localhost, 192.168.x.x, 10.x.x.x, etc.) show the page title as domain header instead of the raw IP, with the address visible on hover and as a secondary tab label; different ports are grouped separately (e.g. `localhost:3000` and `localhost:8080` appear as distinct groups)
 - **Chrome tab grouping** — Group all tabs of a domain into a native Chrome tab group with one click, with automatic color coding and domain name labels; works across multiple windows simultaneously
 - **Close actions** — Close individual tabs, all tabs of a domain, or all tabs older than 7 days
 - **Keyboard shortcut** — `Cmd+M` (Mac) / `Ctrl+M` (Windows/Linux) to toggle the side panel
@@ -133,7 +133,7 @@ Chrome lists these when you install or update the extension:
 │       ├── icon16.png
 │       ├── icon48.png
 │       └── icon128.png
-├── tests/                                  # Playwright E2E tests (116 tests)
+├── tests/                                  # Playwright E2E tests (119 tests)
 │   ├── fixtures.js                         # Chrome + Extension launch fixture
 │   ├── custom-domain-names.spec.js         # Custom domain names (7 tests)
 │   ├── sidepanel.spec.js                   # Core UI (12 tests)
@@ -179,7 +179,7 @@ npx playwright test --ui         # Interactive UI mode
 
 `npm test` does not run the suite; it prints a reminder to use `npm run test:e2e`.
 
-### Test Coverage (116 tests)
+### Test Coverage (119 tests)
 
 | Test file | Tests | Feature |
 |-----------|------:|---------|
@@ -197,7 +197,7 @@ npx playwright test --ui         # Interactive UI mode
 | `banner.spec.js` | 5 | Quick-open Banner (position, toggle, persistence) |
 | `sorting.spec.js` | 4 | Tab Sorting (sort modes, persistence, alphabetical order) |
 | `merge-duplicates.spec.js` | 4 | Merge Duplicates (detect, confirm, cancel, close extras) |
-| `local-ip-detection.spec.js` | 4 | Local IP Detection (localhost display, custom name priority, secondary label) |
+| `local-ip-detection.spec.js` | 7 | Local IP Detection (localhost display, custom name priority, secondary label, port grouping) |
 | `theme.spec.js` | 4 | Theme (toggle, persistence, CSS variables) |
 
 ## License
