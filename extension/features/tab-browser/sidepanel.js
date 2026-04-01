@@ -290,7 +290,12 @@ async function loadTabs() {
 
 function getDomain(url) {
   try {
-    return new URL(url).hostname;
+    const parsed = new URL(url);
+    const hostname = parsed.hostname;
+    if (isLocalAddressHost(hostname) && parsed.port) {
+      return hostname + ':' + parsed.port;
+    }
+    return hostname;
   } catch {
     return 'other';
   }
@@ -307,7 +312,7 @@ function isIpv6LikeHost(hostname) {
 }
 
 function isLocalAddressHost(hostname) {
-  const host = (hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+  const host = (hostname || '').toLowerCase().replace(/^\[|\]$/g, '').replace(/:\d+$/, '');
   if (!host) return false;
   if (host === 'localhost' || host === '::1') return true;
 

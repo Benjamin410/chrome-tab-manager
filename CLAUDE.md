@@ -12,6 +12,10 @@ A Chrome extension that provides a sidebar for managing browser tabs with search
 4. Wait for CI checks to pass
 5. Merge via GitHub (after review if applicable)
 
+## Development Approach
+
+**Always use TDD (Test-Driven Development).** Write tests before or alongside implementation code — never as an afterthought.
+
 ## Tech Stack
 
 - Vanilla JavaScript (no framework)
