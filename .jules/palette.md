@@ -1,0 +1,3 @@
+## 2026-04-02 - Keyboard Accessibility for Complex Interactive Containers
+**Learning:** When making complex container elements (like list items or group headers) fully interactive with keyboard navigation using `keydown` events (Space/Enter), it is critical to prevent the parent container's action from firing if the event actually originated from an inner interactive element (like a button or input).
+**Action:** Always guard parent container `keydown` handlers using `if (e.target.closest('button, input') && e.target !== containerElement) return;` to ensure inner buttons (e.g. close, rename) retain their specific functionality and don't double-trigger the parent container action.
