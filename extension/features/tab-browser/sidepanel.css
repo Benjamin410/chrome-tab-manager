@@ -511,6 +511,11 @@ body {
   background: var(--bg-hover);
 }
 
+.domain-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
 .domain-arrow {
   font-size: 8px;
   color: var(--text-tertiary);
@@ -721,6 +726,11 @@ body {
 
 .tab-entry:hover {
   background: var(--bg-hover);
+}
+
+.tab-entry:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .tab-active-dot {

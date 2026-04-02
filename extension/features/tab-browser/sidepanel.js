@@ -556,6 +556,9 @@ function renderDomainGroup(group, windowId) {
 
   const header = document.createElement('div');
   header.className = 'domain-header' + (showGroupLabel ? ' has-domain-label' : '');
+  header.setAttribute('role', 'button');
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
   const arrow = document.createElement('span');
   arrow.className = 'domain-arrow';
   arrow.innerHTML = '&#9654;';
@@ -653,8 +656,16 @@ function renderDomainGroup(group, windowId) {
   header.appendChild(closeBtn);
 
   header.addEventListener('click', (e) => {
-    if (e.target.closest('.domain-close') || e.target.closest('.domain-group-btn') || e.target.closest('.domain-rename-btn')) return;
-    toggleDomain(domainKey, domainEl);
+    if (e.target.closest('button, input')) return;
+    toggleDomain(domainKey, domainEl, header);
+  });
+
+  header.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (e.target.closest('button, input') && e.target !== header) return;
+      e.preventDefault();
+      toggleDomain(domainKey, domainEl, header);
+    }
   });
 
   header.querySelector('.domain-close').addEventListener('click', async (e) => {
@@ -708,6 +719,8 @@ function renderDomainGroup(group, windowId) {
     const tabEl = document.createElement('div');
     tabEl.className = 'tab-entry' + (tabSecondaryLabel ? ' has-tab-label' : '');
     tabEl.dataset.tabId = tab.id;
+    tabEl.setAttribute('role', 'button');
+    tabEl.setAttribute('tabindex', '0');
     const pl = (tab.pageLabel || '').toLowerCase();
     tabEl.dataset.searchText = `${(tab.title || '').toLowerCase()} ${(tab.url || '').toLowerCase()} ${pl} ${getDisplayName(group.domain).toLowerCase()}`;
 
@@ -747,9 +760,18 @@ function renderDomainGroup(group, windowId) {
     tabEl.appendChild(tabCloseBtn);
 
     tabEl.addEventListener('click', (e) => {
-      if (e.target.closest('.tab-close')) return;
+      if (e.target.closest('button, input')) return;
       chrome.tabs.update(tab.id, { active: true });
       chrome.windows.update(tab.windowId, { focused: true });
+    });
+
+    tabEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (e.target.closest('button, input') && e.target !== tabEl) return;
+        e.preventDefault();
+        chrome.tabs.update(tab.id, { active: true });
+        chrome.windows.update(tab.windowId, { focused: true });
+      }
     });
 
     tabEl.querySelector('.tab-close').addEventListener('click', async (e) => {
@@ -764,13 +786,15 @@ function renderDomainGroup(group, windowId) {
   tabListEl.appendChild(domainEl);
 }
 
-function toggleDomain(key, el) {
+function toggleDomain(key, el, headerEl) {
   if (expandedDomains.has(key)) {
     expandedDomains.delete(key);
     el.classList.remove('expanded');
+    if (headerEl) headerEl.setAttribute('aria-expanded', 'false');
   } else {
     expandedDomains.add(key);
     el.classList.add('expanded');
+    if (headerEl) headerEl.setAttribute('aria-expanded', 'true');
   }
 }
 
