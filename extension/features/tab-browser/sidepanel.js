@@ -65,6 +65,7 @@ const featureTitleTabUsage = document.getElementById('feature-title-tab-usage');
 // Apply all translatable strings to the UI
 function applyTranslations() {
   searchEl.placeholder = t.searchPlaceholder;
+  searchEl.setAttribute('aria-label', t.searchPlaceholder);
   closeOldEl.textContent = t.closeOld;
   themeToggleEl.title = t.themeToggle;
   windowToggleLabelEl.textContent = t.windowGrouping;
@@ -584,6 +585,7 @@ function renderDomainGroup(group, windowId) {
   const renameBtn = document.createElement('button');
   renameBtn.className = 'domain-rename-btn';
   renameBtn.title = t.renameDomain;
+  renameBtn.setAttribute('aria-label', t.renameDomain);
   renameBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>';
   renameBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -637,6 +639,7 @@ function renderDomainGroup(group, windowId) {
   const groupBtn = document.createElement('button');
   groupBtn.className = 'domain-group-btn' + (allGrouped ? ' is-grouped' : '');
   groupBtn.title = allGrouped ? t.ungroupTabs : t.groupTabs;
+  groupBtn.setAttribute('aria-label', allGrouped ? t.ungroupTabs : t.groupTabs);
   groupBtn.innerHTML = allGrouped
     ? '<svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/><path d="M7 11h6" stroke="white" stroke-width="1.5" fill="none"/></svg>'
     : '<svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>';
@@ -645,6 +648,7 @@ function renderDomainGroup(group, windowId) {
   const closeBtn = document.createElement('button');
   closeBtn.className = 'domain-close';
   closeBtn.title = t.closeAll;
+  closeBtn.setAttribute('aria-label', t.closeAll);
   closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   header.appendChild(closeBtn);
 
@@ -738,6 +742,7 @@ function renderDomainGroup(group, windowId) {
     const tabCloseBtn = document.createElement('button');
     tabCloseBtn.className = 'tab-close';
     tabCloseBtn.title = t.closeTab;
+    tabCloseBtn.setAttribute('aria-label', t.closeTab);
     tabCloseBtn.innerHTML = '&times;';
     tabEl.appendChild(tabCloseBtn);
 
