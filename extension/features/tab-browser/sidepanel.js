@@ -512,6 +512,9 @@ function render() {
     return;
   }
 
+  // ⚡ Bolt: Batching DOM inserts using DocumentFragment prevents layout thrashing
+  const fragment = document.createDocumentFragment();
+
   if (groupByWindow && totalWindows > 1) {
     const windows = new Map();
     for (const tab of tabs) {
@@ -525,26 +528,28 @@ function render() {
       const windowHeader = document.createElement('div');
       windowHeader.className = 'window-header';
       windowHeader.textContent = t.windowHeader(windowIndex, windowTabs.length);
-      tabListEl.appendChild(windowHeader);
+      fragment.appendChild(windowHeader);
 
       const domainGroups = groupDomains(windowTabs);
       for (const group of domainGroups) {
-        renderDomainGroup(group, windowId);
+        renderDomainGroup(group, windowId, fragment);
       }
     }
   } else {
     const domainGroups = groupDomains(tabs);
     for (const group of domainGroups) {
-      renderDomainGroup(group, null);
+      renderDomainGroup(group, null, fragment);
     }
   }
+
+  tabListEl.appendChild(fragment);
 
   if (searchEl.value.trim()) {
     applySearch(searchEl.value.trim());
   }
 }
 
-function renderDomainGroup(group, windowId) {
+function renderDomainGroup(group, windowId, container = tabListEl) {
   const domainKey = windowId ? `${windowId}:${group.domain}` : `all:${group.domain}`;
   const isExpanded = expandedDomains.has(domainKey);
 
@@ -761,7 +766,7 @@ function renderDomainGroup(group, windowId) {
   }
 
   domainEl.appendChild(tabsContainer);
-  tabListEl.appendChild(domainEl);
+  container.appendChild(domainEl);
 }
 
 function toggleDomain(key, el) {
