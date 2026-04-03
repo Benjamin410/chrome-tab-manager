@@ -243,16 +243,12 @@ export const MorningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       </div>
 
       {/* Audio: voiceover at start */}
-      {voiceoverFiles[2] && (
-        <Audio src={staticFile(voiceoverFiles[2])} />
-      )}
+      {voiceoverFiles?.[2] ? <Audio src={staticFile(voiceoverFiles[2])} /> : null}
 
       {/* Audio: voiceover at midpoint */}
-      {voiceoverFiles[3] && (
-        <Sequence from={midpoint}>
-          <Audio src={staticFile(voiceoverFiles[3])} />
-        </Sequence>
-      )}
+      <Sequence from={midpoint}>
+        {voiceoverFiles?.[3] ? <Audio src={staticFile(voiceoverFiles[3])} /> : null}
+      </Sequence>
 
       {/* Text overlay: Phase 1 */}
       <Sequence from={0} durationInFrames={midpoint}>

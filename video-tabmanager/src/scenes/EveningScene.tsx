@@ -137,14 +137,12 @@ export const EveningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       />
 
       {/* Voiceover 1: plays at start */}
-      {voiceoverFiles[6] && <Audio src={staticFile(voiceoverFiles[6])} />}
+      {voiceoverFiles?.[6] ? <Audio src={staticFile(voiceoverFiles[6])} /> : null}
 
       {/* Voiceover 2: plays at midpoint */}
-      {voiceoverFiles[7] && (
-        <Sequence from={midpoint}>
-          <Audio src={staticFile(voiceoverFiles[7])} />
-        </Sequence>
-      )}
+      <Sequence from={midpoint}>
+        {voiceoverFiles?.[7] ? <Audio src={staticFile(voiceoverFiles[7])} /> : null}
+      </Sequence>
 
       {/* Code editor mockup — left side */}
       <div

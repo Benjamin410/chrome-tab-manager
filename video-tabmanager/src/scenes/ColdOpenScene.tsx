@@ -97,14 +97,12 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
       }}
     >
       {/* Voiceover 1: plays at start */}
-      {voiceoverFiles[0] && <Audio src={staticFile(voiceoverFiles[0])} />}
+      {voiceoverFiles?.[0] ? <Audio src={staticFile(voiceoverFiles[0])} /> : null}
 
       {/* Voiceover 2: plays at midpoint */}
-      {voiceoverFiles[1] && (
-        <Sequence from={midpoint}>
-          <Audio src={staticFile(voiceoverFiles[1])} />
-        </Sequence>
-      )}
+      <Sequence from={midpoint}>
+        {voiceoverFiles?.[1] ? <Audio src={staticFile(voiceoverFiles[1])} /> : null}
+      </Sequence>
 
       {/* Browser window with wobble */}
       <div
