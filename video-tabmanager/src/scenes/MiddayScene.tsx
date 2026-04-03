@@ -21,22 +21,44 @@ const WINDOWS = [
     label: "Work",
     borderColor: chromeGroupColors.blue,
     tabs: ["Jira", "Slack", "Google Docs"],
-    x: -320,
-    y: -80,
+    x: -440,
+    y: -120,
+    pageContent: [
+      { h: 14, w: "80%", color: "#0052cc", mb: 8 },
+      { h: 10, w: "100%", color: "#e4e6e8", mb: 4 },
+      { h: 10, w: "90%", color: "#e4e6e8", mb: 4 },
+      { h: 24, w: "100%", color: "#f4f5f7", mb: 4 },
+      { h: 24, w: "100%", color: "#ffffff", mb: 4 },
+      { h: 24, w: "100%", color: "#f4f5f7", mb: 0 },
+    ],
   },
   {
     label: "Research",
     borderColor: chromeGroupColors.yellow,
     tabs: ["Stack Overflow", "MDN"],
-    x: 320,
-    y: -40,
+    x: 440,
+    y: -60,
+    pageContent: [
+      { h: 12, w: "70%", color: "#3b4045", mb: 6 },
+      { h: 8, w: "100%", color: "#e3e6e8", mb: 3 },
+      { h: 8, w: "85%", color: "#e3e6e8", mb: 8 },
+      { h: 20, w: "100%", color: "#fdf7e2", mb: 4 },
+      { h: 8, w: "90%", color: "#e3e6e8", mb: 3 },
+      { h: 8, w: "75%", color: "#e3e6e8", mb: 0 },
+    ],
   },
   {
     label: "Personal",
     borderColor: chromeGroupColors.green,
     tabs: ["YouTube", "Reddit"],
     x: 0,
-    y: 160,
+    y: 220,
+    pageContent: [
+      { h: 40, w: "100%", color: "#1a1a1a", mb: 6 },
+      { h: 10, w: "60%", color: "#e5e5e5", mb: 4 },
+      { h: 8, w: "80%", color: "#f0f0f0", mb: 3 },
+      { h: 8, w: "50%", color: "#f0f0f0", mb: 0 },
+    ],
   },
 ];
 
@@ -100,12 +122,12 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
   const midpoint = Math.floor(durationInFrames * 0.5);
   const isGroupPhase = frame >= midpoint;
 
-  // Phase 1: merge animation
+  // Phase 1: merge animation (slower so windows stay visible longer)
   const mergeProgress = spring({
     frame,
     fps,
-    config: { damping: 20, stiffness: 100, mass: 0.8 },
-    delay: 15,
+    config: { damping: 30, stiffness: 40, mass: 1.2 },
+    delay: 25,
   });
 
   // Panel fade-in (slightly after merge starts)
@@ -144,11 +166,11 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
 
       {/* Floating window cards */}
       {WINDOWS.map((win, i) => {
-        const windowOpacity = interpolate(mergeProgress, [0.3, 0.8], [1, 0], {
+        const windowOpacity = interpolate(mergeProgress, [0.5, 0.95], [1, 0], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
-        const windowScale = interpolate(mergeProgress, [0.3, 0.8], [1, 0], {
+        const windowScale = interpolate(mergeProgress, [0.5, 0.95], [1, 0.3], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
@@ -168,7 +190,7 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
               top: "50%",
               transform: `translate(calc(-50% + ${xOffset}px), calc(-50% + ${yOffset}px)) scale(${windowScale})`,
               opacity: windowOpacity,
-              width: 220,
+              width: 340,
               backgroundColor: "#2d2d44",
               borderRadius: 10,
               border: `2px solid ${win.borderColor}`,
@@ -223,7 +245,7 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
             </div>
 
             {/* Tab list */}
-            <div style={{ padding: "6px 10px" }}>
+            <div style={{ padding: "6px 10px", borderBottom: "1px solid #3c3c5a" }}>
               {win.tabs.map((tab, j) => (
                 <div
                   key={j}
@@ -241,6 +263,22 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
                 </div>
               ))}
             </div>
+
+            {/* Webpage content mockup */}
+            <div style={{ padding: "8px 10px", background: "#ffffff", minHeight: 60 }}>
+              {win.pageContent.map((block, k) => (
+                <div
+                  key={k}
+                  style={{
+                    height: block.h,
+                    width: block.w,
+                    backgroundColor: block.color,
+                    borderRadius: 2,
+                    marginBottom: block.mb,
+                  }}
+                />
+              ))}
+            </div>
           </div>
         );
       })}
@@ -256,6 +294,8 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
           theme={lightTheme}
           tabCount={9}
           windowLabel="All Windows"
+          width={460}
+          height={880}
         >
           <div style={{ padding: "0 0 4px" }}>
             {domainGroups.map((group, i) => (

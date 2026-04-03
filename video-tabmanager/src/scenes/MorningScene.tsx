@@ -122,10 +122,10 @@ export const MorningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       <div
         style={{
           position: "absolute",
-          left: 80,
-          top: 80,
-          width: 1000,
-          height: 600,
+          left: 40,
+          top: 40,
+          width: 1380,
+          height: 900,
           borderRadius: 12,
           background: "#ffffff",
           boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)",
@@ -180,21 +180,79 @@ export const MorningScene: React.FC<{ voiceoverFiles: string[] }> = ({
             }}
           />
         </div>
-        {/* Browser content area */}
+        {/* Browser content area — shows matching webpage */}
         <div
           style={{
-            height: 560,
+            height: 856,
             background: "#fafbfc",
+            padding: "20px 24px",
+            overflow: "hidden",
           }}
-        />
+        >
+          {/* GitHub-style page when showing github tabs */}
+          {!showFiltered ? (
+            <>
+              {/* Nav bar */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, borderBottom: "1px solid #d0d7de", paddingBottom: 12 }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#24292f" }} />
+                <div style={{ height: 14, width: 80, background: "#d0d7de", borderRadius: 4 }} />
+                <div style={{ height: 14, width: 60, background: "#d0d7de", borderRadius: 4 }} />
+                <div style={{ height: 14, width: 70, background: "#d0d7de", borderRadius: 4 }} />
+                <div style={{ marginLeft: "auto", height: 28, width: 120, background: "#f6f8fa", border: "1px solid #d0d7de", borderRadius: 6 }} />
+              </div>
+              {/* Repo header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <div style={{ width: 20, height: 20, borderRadius: 4, background: "#d0d7de" }} />
+                <div style={{ height: 16, width: 200, background: "#0969da", borderRadius: 4 }} />
+              </div>
+              <div style={{ height: 12, width: "60%", background: "#656d76", borderRadius: 3, marginBottom: 16, opacity: 0.4 }} />
+              {/* Tabs row */}
+              <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #d0d7de", marginBottom: 16 }}>
+                {["Code", "Issues", "Pull requests", "Actions"].map((t, i) => (
+                  <div key={t} style={{ padding: "8px 16px", fontSize: 12, color: i === 0 ? "#24292f" : "#656d76", borderBottom: i === 0 ? "2px solid #fd8c73" : "none", fontWeight: i === 0 ? 600 : 400 }}>{t}</div>
+                ))}
+              </div>
+              {/* File list */}
+              {["src", "tests", "docs", "package.json", "README.md"].map((f, i) => (
+                <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 8px", borderBottom: "1px solid #d0d7de" }}>
+                  <div style={{ width: 16, height: 16, background: i < 3 ? "#54aeff" : "#57606a", borderRadius: 2, opacity: 0.5 }} />
+                  <div style={{ fontSize: 12, color: "#0969da" }}>{f}</div>
+                  <div style={{ marginLeft: "auto", fontSize: 11, color: "#656d76", opacity: 0.6 }}>2 days ago</div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              {/* GitHub PR page when search filters to PR */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, borderBottom: "1px solid #d0d7de", paddingBottom: 12 }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#24292f" }} />
+                <div style={{ height: 14, width: 80, background: "#d0d7de", borderRadius: 4 }} />
+                <div style={{ height: 14, width: 60, background: "#d0d7de", borderRadius: 4 }} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <div style={{ background: "#1a7f37", color: "#fff", fontSize: 11, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>Open</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: "#24292f" }}>Fix auth flow</div>
+                <div style={{ fontSize: 18, color: "#656d76" }}>#42</div>
+              </div>
+              <div style={{ height: 12, width: "40%", background: "#656d76", borderRadius: 3, marginBottom: 20, opacity: 0.3 }} />
+              {/* PR diff mockup */}
+              <div style={{ background: "#f6f8fa", border: "1px solid #d0d7de", borderRadius: 6, overflow: "hidden" }}>
+                <div style={{ padding: "8px 12px", borderBottom: "1px solid #d0d7de", fontSize: 12, color: "#24292f", fontWeight: 600 }}>src/auth.ts</div>
+                <div style={{ padding: "4px 12px", background: "#dafbe1", fontSize: 11, color: "#1a7f37", fontFamily: "monospace" }}>+ const token = await refreshToken();</div>
+                <div style={{ padding: "4px 12px", background: "#dafbe1", fontSize: 11, color: "#1a7f37", fontFamily: "monospace" }}>+ validateSession(token);</div>
+                <div style={{ padding: "4px 12px", background: "#ffebe9", fontSize: 11, color: "#cf222e", fontFamily: "monospace" }}>- legacyAuth();</div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Tab Manager panel sliding in from right */}
       <div
         style={{
           position: "absolute",
-          right: 60,
-          top: 60,
+          right: 30,
+          top: 30,
           transform: `translateX(${panelTranslateX}px)`,
         }}
       >
@@ -202,7 +260,8 @@ export const MorningScene: React.FC<{ voiceoverFiles: string[] }> = ({
           theme={lightTheme}
           tabCount={tabCount}
           searchValue={searchValue}
-          height={800}
+          width={440}
+          height={960}
         >
           <div style={{ padding: "0" }}>
             {showFiltered ? (

@@ -148,10 +148,10 @@ export const EveningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       <div
         style={{
           position: "absolute",
-          left: 80,
-          top: 100,
-          width: 900,
-          height: 600,
+          left: 40,
+          top: 40,
+          width: 1340,
+          height: 900,
           backgroundColor: "#1e1e2e",
           borderRadius: 12,
           overflow: "hidden",
@@ -216,8 +216,8 @@ export const EveningScene: React.FC<{ voiceoverFiles: string[] }> = ({
                 key={i}
                 style={{
                   fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                  fontSize: 15,
-                  lineHeight: "28px",
+                  fontSize: 18,
+                  lineHeight: "36px",
                   color: line.color,
                   opacity: lineVisible ? 1 : 0,
                   display: "flex",
@@ -246,8 +246,8 @@ export const EveningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       <div
         style={{
           position: "absolute",
-          right: 60,
-          top: 60,
+          right: 30,
+          top: 30,
           opacity: panelOpacity,
           transform: `translateX(${panelX}px)`,
         }}
@@ -256,7 +256,8 @@ export const EveningScene: React.FC<{ voiceoverFiles: string[] }> = ({
           theme={darkTheme}
           isDark={true}
           tabCount={totalTabs}
-          height={800}
+          width={440}
+          height={960}
         >
           {domainGroups.map((group, i) => (
             <DomainGroup key={i} theme={darkTheme} data={group} />

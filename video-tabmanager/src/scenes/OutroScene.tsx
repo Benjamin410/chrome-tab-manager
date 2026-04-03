@@ -126,12 +126,12 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
         >
           <div
             style={{
-              fontSize: 24,
+              fontSize: 36,
               fontWeight: 700,
               color: "#ffffff",
-              letterSpacing: 2,
+              letterSpacing: 3,
               textTransform: "uppercase",
-              marginBottom: 30,
+              marginBottom: 40,
             }}
           >
             BEFORE
@@ -140,25 +140,29 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: 4,
+              gap: 6,
               justifyContent: "center",
-              maxWidth: 300,
-              marginBottom: 20,
+              maxWidth: 500,
+              marginBottom: 30,
             }}
           >
-            {Array.from({ length: 20 }).map((_, i) => (
+            {Array.from({ length: 24 }).map((_, i) => (
               <div
                 key={i}
                 style={{
-                  width: 48,
-                  height: 12,
+                  width: 64,
+                  height: 16,
                   backgroundColor: "#3c3c5a",
-                  borderRadius: 3,
+                  borderRadius: 4,
                 }}
               />
             ))}
           </div>
-          <div style={{ fontSize: 48 }}>😵‍💫</div>
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#ff5f57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
         </div>
 
         {/* RIGHT side - After */}
@@ -179,12 +183,12 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
         >
           <div
             style={{
-              fontSize: 24,
+              fontSize: 36,
               fontWeight: 700,
               color: lightTheme.textPrimary,
-              letterSpacing: 2,
+              letterSpacing: 3,
               textTransform: "uppercase",
-              marginBottom: 30,
+              marginBottom: 40,
             }}
           >
             AFTER
@@ -193,8 +197,8 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 12,
-              marginBottom: 20,
+              gap: 16,
+              marginBottom: 30,
             }}
           >
             {tabGroups.map((group) => (
@@ -203,20 +207,20 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
+                  gap: 12,
                   backgroundColor: `${group.color}18`,
                   border: `2px solid ${group.color}`,
-                  borderRadius: 20,
-                  padding: "8px 24px",
-                  fontSize: 18,
+                  borderRadius: 24,
+                  padding: "12px 36px",
+                  fontSize: 24,
                   fontWeight: 600,
                   color: group.color,
                 }}
               >
                 <div
                   style={{
-                    width: 10,
-                    height: 10,
+                    width: 14,
+                    height: 14,
                     borderRadius: "50%",
                     backgroundColor: group.color,
                   }}
@@ -225,7 +229,10 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 48 }}>😌</div>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#188038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
         </div>
 
         {/* Divider */}
@@ -256,8 +263,8 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
           <Img
             src={staticFile("images/icon128.png")}
             style={{
-              width: 96,
-              height: 96,
+              width: 128,
+              height: 128,
               transform: `scale(${iconScale})`,
               marginBottom: 16,
             }}
@@ -266,7 +273,7 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
           {/* Title */}
           <div
             style={{
-              fontSize: 52,
+              fontSize: 64,
               fontWeight: 700,
               color: "#202124",
               transform: `translateY(${titleTranslateY}px)`,
@@ -280,7 +287,7 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
           {/* Subtitle */}
           <div
             style={{
-              fontSize: 32,
+              fontSize: 38,
               color: "#5f6368",
               transform: `translateY(${titleTranslateY}px)`,
               opacity: titleOpacity,
@@ -295,9 +302,9 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
             style={{
               backgroundColor: lightTheme.accent,
               color: "#ffffff",
-              padding: "14px 40px",
-              borderRadius: 28,
-              fontSize: 24,
+              padding: "18px 52px",
+              borderRadius: 32,
+              fontSize: 30,
               fontWeight: 600,
               transform: `scale(${pulseScale})`,
               opacity: titleOpacity,
@@ -311,7 +318,7 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
           <Img
             src={staticFile("images/screenshot-light.png")}
             style={{
-              width: 280,
+              width: 380,
               borderRadius: 8,
               opacity: screenshotOpacity,
             }}

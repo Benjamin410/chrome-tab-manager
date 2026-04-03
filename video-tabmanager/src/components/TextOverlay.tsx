@@ -21,10 +21,16 @@ const getPositionStyle = (
 ): React.CSSProperties => {
   switch (position) {
     case "bottom-left":
-      return { bottom: 60, left: 60 };
+      return {
+        bottom: 80,
+        left: 0,
+        width: "50%",
+        display: "flex",
+        justifyContent: "center",
+      };
     case "bottom-center":
       return {
-        bottom: 60,
+        bottom: 80,
         left: "50%",
         transform: "translateX(-50%)",
       };

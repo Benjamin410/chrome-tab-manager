@@ -107,7 +107,7 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
       {/* Browser window with wobble */}
       <div
         style={{
-          width: 1400,
+          width: 1760,
           backgroundColor: "#2d2d44",
           borderRadius: 12,
           boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
@@ -191,7 +191,7 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
         {/* Content area — fake webpage */}
         <div
           style={{
-            height: 500,
+            height: 720,
             backgroundColor: "#ffffff",
             position: "relative",
             overflow: "hidden",
@@ -293,7 +293,7 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
             </div>
           </div>
 
-          {/* Emoji overlay — fades in as chaos peaks */}
+          {/* Warning overlay — fades in as chaos peaks */}
           <div
             style={{
               position: "absolute",
@@ -302,18 +302,31 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
               right: 0,
               bottom: 0,
               display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              fontSize: 100,
               opacity: interpolate(frame, [60, 100], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               }),
               pointerEvents: "none",
-              background: `radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 50%, transparent 70%)`,
+              background: `radial-gradient(circle, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.5) 45%, transparent 70%)`,
             }}
           >
-            😵‍💫
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#d93025" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <div style={{
+              marginTop: 12,
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#d93025",
+              letterSpacing: 1,
+            }}>
+              TOO MANY TABS
+            </div>
           </div>
         </div>
       </div>
