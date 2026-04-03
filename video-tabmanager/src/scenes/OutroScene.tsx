@@ -99,12 +99,14 @@ export const OutroScene: React.FC<{ voiceoverFiles: string[] }> = ({
       }}
     >
       {/* Voiceover 1: plays at start */}
-      <Audio src={staticFile(voiceoverFiles[8])} />
+      {voiceoverFiles[8] && <Audio src={staticFile(voiceoverFiles[8])} />}
 
       {/* Voiceover 2: plays at phase switch */}
-      <Sequence from={phaseSwitch}>
-        <Audio src={staticFile(voiceoverFiles[9])} />
-      </Sequence>
+      {voiceoverFiles[9] && (
+        <Sequence from={phaseSwitch}>
+          <Audio src={staticFile(voiceoverFiles[9])} />
+        </Sequence>
+      )}
 
       {/* Phase 1: Before/After Split Screen */}
       <AbsoluteFill style={{ opacity: splitOpacity }}>

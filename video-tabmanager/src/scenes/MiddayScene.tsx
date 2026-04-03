@@ -135,12 +135,14 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
       }}
     >
       {/* Voiceover 1: "All windows. One panel." */}
-      <Audio src={staticFile(voiceoverFiles[4])} />
+      {voiceoverFiles[4] && <Audio src={staticFile(voiceoverFiles[4])} />}
 
       {/* Voiceover 2: "Color-coded groups. One click." */}
-      <Sequence from={midpoint}>
-        <Audio src={staticFile(voiceoverFiles[5])} />
-      </Sequence>
+      {voiceoverFiles[5] && (
+        <Sequence from={midpoint}>
+          <Audio src={staticFile(voiceoverFiles[5])} />
+        </Sequence>
+      )}
 
       {/* Floating window cards */}
       {WINDOWS.map((win, i) => {
