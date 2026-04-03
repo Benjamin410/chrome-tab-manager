@@ -1,5 +1,4 @@
 import { CalculateMetadataFunction } from "remotion";
-import { getAudioDuration } from "mediabunny";
 import type { TabManagerVideoProps } from "./schema";
 
 const FPS = 30;
@@ -15,22 +14,9 @@ export const DEFAULT_SCENE_FRAMES = {
   outro: 210,       // 7s
 };
 
-export const calculateTabManagerVideoMetadata: CalculateMetadataFunction<TabManagerVideoProps> = async ({ props, abortSignal }) => {
-  let totalAudioDuration = 0;
-
-  if (props.voiceoverFiles.length > 0) {
-    for (const file of props.voiceoverFiles) {
-      try {
-        const duration = await getAudioDuration(`public/${file}`, abortSignal);
-        totalAudioDuration += duration;
-      } catch {
-        // File might not exist during preview
-      }
-    }
-  }
-
-  const effectiveDuration = Math.max(TARGET_DURATION_SECONDS, totalAudioDuration + 2);
-  const netFrames = Math.ceil(effectiveDuration * FPS);
+export const calculateTabManagerVideoMetadata: CalculateMetadataFunction<TabManagerVideoProps> = async ({ props }) => {
+  // Use fixed target duration; audio sync is handled per-scene
+  const netFrames = Math.ceil(TARGET_DURATION_SECONDS * FPS);
   const rawFrames = netFrames + NUM_TRANSITIONS * TRANSITION_FRAMES;
 
   return {

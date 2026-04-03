@@ -1,0 +1,22 @@
+{
+  "voiceId": "ErXwobaYiN019PkySvjV",
+  "modelId": "eleven_multilingual_v2",
+  "voiceSettings": {
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.5,
+    "use_speaker_boost": true
+  },
+  "scenes": [
+    { "id": "cold-open", "text": "We've all been here.", "output": "public/voiceover/01-cold-open.mp3" },
+    { "id": "transition", "text": "But today is different.", "output": "public/voiceover/02-transition.mp3" },
+    { "id": "morning-sort", "text": "Everything sorted. Automatically.", "output": "public/voiceover/03-morning-sort.mp3" },
+    { "id": "morning-search", "text": "Find any tab. Instantly.", "output": "public/voiceover/04-morning-search.mp3" },
+    { "id": "midday-windows", "text": "All windows. One panel.", "output": "public/voiceover/05-midday-windows.mp3" },
+    { "id": "midday-groups", "text": "Color-coded groups. One click.", "output": "public/voiceover/06-midday-groups.mp3" },
+    { "id": "evening-localhost", "text": "localhost 3000 and 8080. Each gets its own group.", "output": "public/voiceover/07-evening-localhost.mp3" },
+    { "id": "evening-dev", "text": "Built for developers. By a developer.", "output": "public/voiceover/08-evening-dev.mp3" },
+    { "id": "outro-tagline", "text": "Your tabs. Finally organized.", "output": "public/voiceover/09-outro-tagline.mp3" },
+    { "id": "outro-cta", "text": "Free on the Chrome Web Store.", "output": "public/voiceover/10-outro-cta.mp3" }
+  ]
+}
