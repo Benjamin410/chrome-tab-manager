@@ -3,7 +3,6 @@ import {
   AbsoluteFill,
   useCurrentFrame,
   useVideoConfig,
-  spring,
   interpolate,
   Audio,
   Sequence,
@@ -86,17 +85,6 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
   const wobbleX = Math.sin(frame * 0.8) * wobbleIntensity;
   const wobbleY = Math.cos(frame * 0.6) * wobbleIntensity * 0.5;
 
-  // Zoom transition at end (last 30 frames)
-  const zoomStart = durationInFrames - 30;
-  const scale = interpolate(frame, [zoomStart, durationInFrames], [1, 2.5], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const opacity = interpolate(frame, [zoomStart, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
   const midpoint = Math.floor(durationInFrames * 0.5);
 
   return (
@@ -116,16 +104,15 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
         <Audio src={staticFile(voiceoverFiles[1])} />
       </Sequence>
 
-      {/* Browser window with wobble and zoom */}
+      {/* Browser window with wobble */}
       <div
         style={{
-          width: 900,
+          width: 1400,
           backgroundColor: "#2d2d44",
           borderRadius: 12,
           boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
           overflow: "hidden",
-          transform: `translate(${wobbleX}px, ${wobbleY}px) scale(${scale})`,
-          opacity,
+          transform: `translate(${wobbleX}px, ${wobbleY}px)`,
         }}
       >
         {/* Title bar */}
@@ -201,27 +188,146 @@ export const ColdOpenScene: React.FC<{ voiceoverFiles: string[] }> = ({
           ))}
         </div>
 
-        {/* Content area */}
+        {/* Content area — fake webpage */}
         <div
           style={{
-            height: 300,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            fontSize: 80,
+            height: 500,
+            backgroundColor: "#ffffff",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          😵‍💫
+          {/* Navbar */}
+          <div
+            style={{
+              height: 44,
+              backgroundColor: "#1e293b",
+              display: "flex",
+              alignItems: "center",
+              padding: "0 24px",
+              gap: 24,
+            }}
+          >
+            <div style={{ color: "#38bdf8", fontWeight: 700, fontSize: 16 }}>
+              SiteName
+            </div>
+            {["Home", "Products", "Blog", "Pricing", "Contact"].map((item) => (
+              <div
+                key={item}
+                style={{ color: "#94a3b8", fontSize: 13 }}
+              >
+                {item}
+              </div>
+            ))}
+            <div style={{ marginLeft: "auto", width: 140, height: 26, borderRadius: 4, backgroundColor: "#334155" }} />
+          </div>
+
+          <div style={{ display: "flex", height: 456 }}>
+            {/* Main content */}
+            <div style={{ flex: 1, padding: "20px 28px" }}>
+              {/* Hero text block */}
+              <div style={{ height: 18, width: "70%", backgroundColor: "#e2e8f0", borderRadius: 4, marginBottom: 10 }} />
+              <div style={{ height: 14, width: "90%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 6 }} />
+              <div style={{ height: 14, width: "80%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 6 }} />
+              <div style={{ height: 14, width: "60%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 20 }} />
+
+              {/* Image placeholder row */}
+              <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+                <div style={{ width: 180, height: 110, backgroundColor: "#cbd5e1", borderRadius: 8, display: "flex", justifyContent: "center", alignItems: "center", color: "#64748b", fontSize: 24 }}>
+                  🖼️
+                </div>
+                <div style={{ width: 180, height: 110, backgroundColor: "#cbd5e1", borderRadius: 8, display: "flex", justifyContent: "center", alignItems: "center", color: "#64748b", fontSize: 24 }}>
+                  🖼️
+                </div>
+                <div style={{ width: 180, height: 110, backgroundColor: "#cbd5e1", borderRadius: 8, display: "flex", justifyContent: "center", alignItems: "center", color: "#64748b", fontSize: 24 }}>
+                  🖼️
+                </div>
+              </div>
+
+              {/* More text lines */}
+              <div style={{ height: 16, width: "50%", backgroundColor: "#e2e8f0", borderRadius: 4, marginBottom: 10 }} />
+              <div style={{ height: 12, width: "95%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 5 }} />
+              <div style={{ height: 12, width: "88%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 5 }} />
+              <div style={{ height: 12, width: "76%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 5 }} />
+              <div style={{ height: 12, width: "82%", backgroundColor: "#f1f5f9", borderRadius: 4, marginBottom: 16 }} />
+
+              {/* Card row */}
+              <div style={{ display: "flex", gap: 14 }}>
+                {[1, 2, 3, 4].map((c) => (
+                  <div
+                    key={c}
+                    style={{
+                      flex: 1,
+                      height: 90,
+                      backgroundColor: "#f8fafc",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 8,
+                      padding: 10,
+                    }}
+                  >
+                    <div style={{ height: 10, width: "60%", backgroundColor: "#e2e8f0", borderRadius: 3, marginBottom: 8 }} />
+                    <div style={{ height: 8, width: "90%", backgroundColor: "#f1f5f9", borderRadius: 3, marginBottom: 4 }} />
+                    <div style={{ height: 8, width: "70%", backgroundColor: "#f1f5f9", borderRadius: 3 }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div
+              style={{
+                width: 240,
+                backgroundColor: "#f8fafc",
+                borderLeft: "1px solid #e2e8f0",
+                padding: "18px 16px",
+              }}
+            >
+              <div style={{ height: 14, width: "80%", backgroundColor: "#e2e8f0", borderRadius: 4, marginBottom: 12 }} />
+              <div style={{ height: 60, backgroundColor: "#cbd5e1", borderRadius: 8, marginBottom: 14 }} />
+              <div style={{ height: 10, width: "90%", backgroundColor: "#f1f5f9", borderRadius: 3, marginBottom: 5 }} />
+              <div style={{ height: 10, width: "70%", backgroundColor: "#f1f5f9", borderRadius: 3, marginBottom: 14 }} />
+              <div style={{ height: 14, width: "60%", backgroundColor: "#e2e8f0", borderRadius: 4, marginBottom: 12 }} />
+              <div style={{ height: 48, backgroundColor: "#cbd5e1", borderRadius: 8, marginBottom: 14 }} />
+              <div style={{ height: 10, width: "85%", backgroundColor: "#f1f5f9", borderRadius: 3, marginBottom: 5 }} />
+              <div style={{ height: 10, width: "65%", backgroundColor: "#f1f5f9", borderRadius: 3 }} />
+            </div>
+          </div>
+
+          {/* Emoji overlay — fades in as chaos peaks */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: 100,
+              opacity: interpolate(frame, [60, 100], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }),
+              pointerEvents: "none",
+              background: `radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 50%, transparent 70%)`,
+            }}
+          >
+            😵‍💫
+          </div>
         </div>
       </div>
 
       {/* Text overlay 1 */}
-      <TextOverlay
-        text="We've all been here."
-        delay={15}
-        fontSize={42}
-        position="bottom-center"
-      />
+      <Sequence from={0} durationInFrames={midpoint}>
+        <TextOverlay
+          text="We've all been here."
+          delay={15}
+          fontSize={42}
+          position="bottom-center"
+          fadeOutAfter={midpoint - 20}
+        />
+      </Sequence>
 
       {/* Text overlay 2 */}
       <Sequence from={midpoint}>

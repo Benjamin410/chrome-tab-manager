@@ -329,12 +329,15 @@ export const EveningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       )}
 
       {/* Text overlay 1 */}
-      <TextOverlay
-        text="localhost:3000 and :8080 — each gets its own group."
-        delay={20}
-        fontSize={34}
-        position="bottom-left"
-      />
+      <Sequence from={0} durationInFrames={midpoint}>
+        <TextOverlay
+          text="localhost:3000 and :8080 — each gets its own group."
+          delay={20}
+          fontSize={34}
+          position="bottom-left"
+          fadeOutAfter={midpoint - 20}
+        />
+      </Sequence>
 
       {/* Text overlay 2 — from midpoint */}
       <Sequence from={midpoint}>

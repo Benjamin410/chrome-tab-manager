@@ -13,6 +13,7 @@ type TextOverlayProps = {
   fontSize?: number;
   color?: string;
   position?: "bottom-left" | "bottom-center" | "center";
+  fadeOutAfter?: number;
 };
 
 const getPositionStyle = (
@@ -39,9 +40,10 @@ const getPositionStyle = (
 export const TextOverlay: React.FC<TextOverlayProps> = ({
   text,
   delay = 0,
-  fontSize = 36,
+  fontSize = 48,
   color = "#ffffff",
   position = "bottom-center",
+  fadeOutAfter,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -58,8 +60,21 @@ export const TextOverlay: React.FC<TextOverlayProps> = ({
     },
   });
 
-  const opacity = interpolate(springValue, [0, 1], [0, 1]);
+  const fadeInOpacity = interpolate(springValue, [0, 1], [0, 1]);
   const translateY = interpolate(springValue, [0, 1], [20, 0]);
+
+  // Fade-out logic: if fadeOutAfter is set, fade out over ~15 frames
+  let fadeOutOpacity = 1;
+  if (fadeOutAfter !== undefined) {
+    fadeOutOpacity = interpolate(
+      frame,
+      [fadeOutAfter, fadeOutAfter + 15],
+      [1, 0],
+      { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+    );
+  }
+
+  const opacity = fadeInOpacity * fadeOutOpacity;
 
   const positionStyles = getPositionStyle(position);
 
@@ -84,6 +99,10 @@ export const TextOverlay: React.FC<TextOverlayProps> = ({
         fontWeight: 700,
         textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
         whiteSpace: "nowrap",
+        background: "rgba(0, 0, 0, 0.6)",
+        padding: "12px 28px",
+        borderRadius: 12,
+        backdropFilter: "blur(8px)",
       }}
     >
       {text}

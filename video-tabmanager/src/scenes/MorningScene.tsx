@@ -255,12 +255,15 @@ export const MorningScene: React.FC<{ voiceoverFiles: string[] }> = ({
       )}
 
       {/* Text overlay: Phase 1 */}
-      <TextOverlay
-        text="Everything sorted. Automatically."
-        delay={20}
-        fontSize={38}
-        position="bottom-left"
-      />
+      <Sequence from={0} durationInFrames={midpoint}>
+        <TextOverlay
+          text="Everything sorted. Automatically."
+          delay={20}
+          fontSize={38}
+          position="bottom-left"
+          fadeOutAfter={midpoint - 20}
+        />
+      </Sequence>
 
       {/* Text overlay: Phase 2 */}
       <Sequence from={midpoint}>

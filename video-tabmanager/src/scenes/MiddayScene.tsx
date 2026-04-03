@@ -280,12 +280,15 @@ export const MiddayScene: React.FC<{ voiceoverFiles: string[] }> = ({
       </div>
 
       {/* Text overlay 1: "All windows. One panel." */}
-      <TextOverlay
-        text="All windows. One panel."
-        delay={25}
-        fontSize={38}
-        position="bottom-left"
-      />
+      <Sequence from={0} durationInFrames={midpoint}>
+        <TextOverlay
+          text="All windows. One panel."
+          delay={25}
+          fontSize={38}
+          position="bottom-left"
+          fadeOutAfter={midpoint - 20}
+        />
+      </Sequence>
 
       {/* Text overlay 2: "Color-coded groups. One click." */}
       <Sequence from={midpoint}>
