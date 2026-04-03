@@ -1,0 +1,30 @@
+{
+  "name": "video-tabmanager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@remotion/cli": "^4.0.443",
+    "@remotion/google-fonts": "^4.0.443",
+    "@remotion/media": "^4.0.443",
+    "@remotion/transitions": "^4.0.443",
+    "@remotion/zod-types": "^4.0.443",
+    "@types/react": "^19.2.14",
+    "mediabunny": "^1.40.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remotion": "^4.0.443",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "tsx": "^4.21.0"
+  }
+}
