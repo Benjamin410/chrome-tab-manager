@@ -225,6 +225,7 @@ labelsToggleEl.addEventListener('click', async () => {
 
 function updateWindowToggle() {
   windowToggleEl.classList.toggle('active', groupByWindow);
+  windowToggleEl.setAttribute('aria-pressed', String(groupByWindow));
   windowToggleEl.title = groupByWindow ? t.windowGroupingOn : t.windowGroupingOff;
 }
 
